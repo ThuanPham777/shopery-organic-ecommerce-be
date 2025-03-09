@@ -12,7 +12,7 @@ async function bootstrap() {
   app.setGlobalPrefix('api');
 
   // Validation cho DTOs
-  app.useGlobalPipes(new ValidationPipe());
+  app.useGlobalPipes(new ValidationPipe({ transform: true }));
 
   // CORS cho phép frontend gọi API từ domain khác
   app.enableCors({

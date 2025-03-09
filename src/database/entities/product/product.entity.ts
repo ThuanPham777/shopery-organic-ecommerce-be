@@ -1,9 +1,9 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, ManyToMany, JoinTable } from 'typeorm';
 import { Category } from '../category/category.entity';
 import { Brand } from '../brand/brand.entity';
 import { Manufacturer } from '../manufacturer/manufacturer.entity';
 import { Tag } from '../tag/tag.entity';
-import { ProductImage } from '../product/product-image.entity';
+import { ProductImages } from '../product/product-image.entity';
 import { Review } from '../review/review.entity';
 
 export enum ProductStatus {
@@ -20,19 +20,19 @@ export class Product {
   @Column({ length: 255 })
   name: string;
 
-  @Column({ length: 255, unique: true, nullable: true })
+  @Column({ length: 255, unique: true})
   slug: string;
 
-  @Column({ type: 'text', nullable: true })
+  @Column({ type: 'text',})
   description: string;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ length: 255,})
   thumbnail: string;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ length: 255,})
   sku: string;
 
-  @Column({ type: 'float' })
+  @Column({ type: 'float',})
   price: number;
 
   @Column({ type: 'enum', enum: ProductStatus })
@@ -72,12 +72,23 @@ export class Product {
   @JoinColumn({ name: 'manufacturer_id' })
   manufacturer: Manufacturer;
 
-  @ManyToOne(() => Tag, tag => tag.products)
-  @JoinColumn({ name: 'tag_id' })
-  tag: Tag;
+  @ManyToMany(() => Tag, tag => tag.products)
+  @JoinTable({
+    name: 'ProductTag',
+    joinColumn: {
+      name: 'product_id',       // Column name in the join table that references Product.id
+      referencedColumnName: 'id'
+    },
+    inverseJoinColumn: {
+      name: 'tag_id',           // Column name in the join table that references Tag.id
+      referencedColumnName: 'id'
+    }
+  })
+  tags: Tag[];
 
-  @OneToMany(() => ProductImage, image => image.product)
-  images: ProductImage[];
+ // Quan hệ One-to-Many với ProductImage
+  @OneToMany(() => ProductImages, image => image.product, { cascade: true, onDelete: 'CASCADE' })
+  images: ProductImages[];
 
   @OneToMany(() => Review, review => review.product)
   reviews: Review[];

@@ -1,8 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToOne, JoinColumn, ManyToMany } from 'typeorm';
-import { Product } from '../product/product.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, ManyToMany } from 'typeorm';
+import { Blog } from './blog.entity';
 
-@Entity({ name: 'Tag' })
-export class Tag {
+@Entity({ name: 'BlogTag' })
+export class BlogTag {
   @PrimaryGeneratedColumn()
   id: number;
 
@@ -18,6 +18,6 @@ export class Tag {
   @Column({ type: 'timestamp', nullable: true })
   deleted_at: Date;
 
-  @ManyToMany(() => Product, product => product.tags)
-  products: Product;
+  @ManyToMany(() => Blog, blog => blog.tags)
+  blog: Blog;
 }

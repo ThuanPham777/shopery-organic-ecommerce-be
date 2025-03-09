@@ -1,8 +1,8 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
-import { Category } from '../category/category.entity';
-import { Tag } from '../tag/tag.entity';
+import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, ManyToMany, JoinTable } from 'typeorm';
+import { BlogCategory } from '../../entities/blog/blog-category.entity';
 import { User } from '../user/user.entity';
 import { BlogComment } from './blog-comment.entity';
+import { BlogTag } from './blog-tags.entity';
 
 @Entity({ name: 'Blog' })
 export class Blog {
@@ -30,13 +30,14 @@ export class Blog {
   @Column({ type: 'timestamp', nullable: true })
   deleted_at: Date;
 
-  @ManyToOne(() => Category)
+  @ManyToOne(() => BlogCategory)
   @JoinColumn({ name: 'category_id' })
-  category: Category;
+  category: BlogCategory;
 
-  @ManyToOne(() => Tag)
-  @JoinColumn({ name: 'tag_id' })
-  tag: Tag;
+ // Đổi tên thuộc tính thành blogTag
+  @ManyToMany(() => BlogTag, blogTag => blogTag.blog)
+    @JoinTable({ name: 'Blog_BlogTag' }) // Tên bảng trung gian
+  tags: BlogTag[];
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })

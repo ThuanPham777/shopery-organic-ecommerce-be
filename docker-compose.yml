@@ -1,0 +1,23 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql_shoperyorganic
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: thuan@7771412
+      MYSQL_DATABASE: shoperyorganic
+      MYSQL_USER: user
+      MYSQL_PASSWORD: thuan@7771412
+
+    networks:
+      - PrviNetwork
+
+volumes:
+  mysql-data:
+
+networks:
+  PrviNetwork:
+    external: true
