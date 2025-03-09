@@ -9,11 +9,10 @@ import { Manufacturer } from 'src/database/entities/manufacturer/manufacturer.en
 import { Tag } from 'src/database/entities/tag/tag.entity';
 import { Product } from 'src/database/entities/product/product.entity';
 import { ProductImages } from 'src/database/entities/product/product-image.entity';
-import { CloudinaryService } from './service/cloudinary.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Product, Category, Brand, Manufacturer, Tag, ProductImages])],
   controllers: [ProductController],
-  providers: [ProductService, CloudinaryService],
+  providers: [ProductService],
 })
 export class ProductModule {}

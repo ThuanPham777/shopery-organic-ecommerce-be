@@ -10,7 +10,7 @@ import { Tag } from '../../../database/entities/tag/tag.entity';
 import { ProductImages } from '../../../database/entities/product/product-image.entity';
 import { CreateProductDto } from '../../../api/product/dto/create-product.dto';
 import { GetProductsDto } from '../dto/get-products.dto.';
-import { CloudinaryService } from './cloudinary.service';
+import { uploadToCloudinary, extractPublicId, deleteFromCloudinary } from 'src/common/helper/cloudinary.helper'
 import { UpdateProductDto } from '../dto/update-product.dto';
 @Injectable()
 export class ProductService {
@@ -31,11 +31,11 @@ export class ProductService {
 
     @InjectRepository(ProductImages)
     private readonly productImageRepository: Repository<ProductImages>,
-    private readonly cloudinaryService: CloudinaryService,
+  ) {
 
+  }
 
-  ) {}
-
+  static folder = "shopery-organic/products";
   // Method to fetch all products
 async getProducts(query: GetProductsDto) {
   const {
@@ -261,7 +261,7 @@ async getProduct(productId: number) {
     }
 
     // Upload thumbnail lên Cloudinary
-    const uploadResult: any = await this.cloudinaryService.uploadToCloudinary(thumbnail);
+    const uploadResult: any = await uploadToCloudinary(thumbnail, ProductService.folder);
     dto.thumbnail = uploadResult.secure_url;
 
     // Tìm category, manufacturer, brand
@@ -326,7 +326,7 @@ async getProduct(productId: number) {
     // Nếu có ảnh mới, upload lên Cloudinary
     //console.log("Thumbnail", thumbnail)
   if (thumbnail) {
-    const uploadResult = await this.cloudinaryService.uploadToCloudinary(thumbnail);
+    const uploadResult = await uploadToCloudinary(thumbnail, ProductService.folder);
     console.log("uploadResult", uploadResult)
     product.thumbnail = uploadResult.secure_url;
   }
@@ -376,8 +376,8 @@ async getProduct(productId: number) {
 
     // Nếu sản phẩm có ảnh thumbnail, xóa trên Cloudinary trước
     if (product.thumbnail) {
-        const publicId = this.cloudinaryService.extractPublicId(product.thumbnail);
-        await this.cloudinaryService.deleteFromCloudinary(publicId);
+        const publicId = extractPublicId(product.thumbnail);
+        await deleteFromCloudinary(publicId);
     }
 
     // Xóa ảnh trên cloudinary
@@ -388,8 +388,8 @@ async getProduct(productId: number) {
 
     if (images) {
         // Xóa tất cả ảnh trên Cloudinary
-      const publicIds = images.map(img => this.cloudinaryService.extractPublicId(img.image_url));
-      await Promise.all(publicIds.map(id => this.cloudinaryService.deleteFromCloudinary(id)));
+      const publicIds = images.map(img => extractPublicId(img.image_url));
+      await Promise.all(publicIds.map(id => deleteFromCloudinary(id)));
     }
 
     // Xóa sản phẩm khỏi database
@@ -421,7 +421,7 @@ async getProduct(productId: number) {
     }
 
     // Upload tất cả ảnh lên Cloudinary
-    const uploadPromises = files.map(file => this.cloudinaryService.uploadToCloudinary(file));
+    const uploadPromises = files.map(file => uploadToCloudinary(file, ProductService.folder));
     const uploadResults = await Promise.all(uploadPromises);
 
     // Lưu đường dẫn vào database
@@ -457,11 +457,11 @@ async getProduct(productId: number) {
     }
 
     // Xóa ảnh cũ trên Cloudinary
-    const publicId = this.cloudinaryService.extractPublicId(currentImage.image_url);
-    await this.cloudinaryService.deleteFromCloudinary(publicId);
+    const publicId = extractPublicId(currentImage.image_url);
+    await deleteFromCloudinary(publicId);
 
     // Upload ảnh mới lên Cloudinary
-    const uploadResult: any = await this.cloudinaryService.uploadToCloudinary(newImage);
+    const uploadResult: any = await uploadToCloudinary(newImage, ProductService.folder);
     currentImage.image_url = uploadResult.secure_url;
 
     // Cập nhật ảnh trong database
@@ -490,8 +490,8 @@ async getProduct(productId: number) {
     }
 
     // delete images Cloudinary
-    const publicId = this.cloudinaryService.extractPublicId(image.image_url);
-    await this.cloudinaryService.deleteFromCloudinary(publicId);
+    const publicId = extractPublicId(image.image_url);
+    await deleteFromCloudinary(publicId);
 
     // Xóa ảnh khỏi database
     await this.productImageRepository.delete(image.id);
@@ -514,14 +514,12 @@ async getProduct(productId: number) {
     console.log('Images found:', images);
 
     // Xóa tất cả ảnh trên Cloudinary
-    const publicIds = images.map(img => this.cloudinaryService.extractPublicId(img.image_url));
-    await Promise.all(publicIds.map(id => this.cloudinaryService.deleteFromCloudinary(id)));
+    const publicIds = images.map(img => extractPublicId(img.image_url));
+    await Promise.all(publicIds.map(id => deleteFromCloudinary(id)));
 
     // Xóa ảnh khỏi database (Dùng remove thay vì delete)
     await this.productImageRepository.remove(images);
 
     return { success: true, message: 'Images deleted successfully' };
 }
-
-
 }
