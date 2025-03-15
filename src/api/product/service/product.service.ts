@@ -1,5 +1,5 @@
 // product/product.service.ts
-import { BadRequestException, Inject, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { Product } from '../../../database/entities/product/product.entity';
@@ -254,7 +254,7 @@ async getProduct(productId: number) {
   try {
     //console.log('test createProduct................');
 
-     console.log('Received file:', thumbnail);
+    console.log('Received file:', thumbnail);
 
     if (!thumbnail) {
       throw new BadRequestException('Thumbnail file is required');
