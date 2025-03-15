@@ -16,6 +16,7 @@ export class BrandService {
     const brands = await this.brandRepository.find({
       relations: [
         'products',
+        'products.manufacturer',
         'products.category',
         'products.tags',
         'products.images',
