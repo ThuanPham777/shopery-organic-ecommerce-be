@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+} from 'typeorm';
 import { User } from '../user/user.entity';
 import { CartItem } from './cart-item.entity';
 
@@ -6,9 +13,6 @@ import { CartItem } from './cart-item.entity';
 export class Cart {
   @PrimaryGeneratedColumn()
   id: number;
-
-  @Column({ length: 255, nullable: true })
-  session_id: string;
 
   @Column({ type: 'decimal', precision: 18, scale: 2 })
   total: number;
@@ -19,10 +23,10 @@ export class Cart {
   @Column({ type: 'timestamp', nullable: true })
   modified_at: Date;
 
-  @ManyToOne(() => User, user => user.carts)
+  @ManyToOne(() => User, (user) => user.carts)
   @JoinColumn({ name: 'user_id' })
   user: User;
 
-  @OneToMany(() => CartItem, cartItem => cartItem.cart)
+  @OneToMany(() => CartItem, (cartItem) => cartItem.cart)
   items: CartItem[];
 }
