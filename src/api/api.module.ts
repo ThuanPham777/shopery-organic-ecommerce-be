@@ -5,9 +5,11 @@ import { ManufacturerModule } from './manufacturer/manufacturer.module';
 import { BrandModule } from './brand/brand.module';
 import { TagModule } from './tag/tag.module';
 import { CartModule } from './cart/cart.module';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
   imports: [
+    AuthModule,
     ProductModule,
     CategoryModule,
     ManufacturerModule,

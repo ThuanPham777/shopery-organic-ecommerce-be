@@ -1,4 +1,14 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn, ManyToMany, JoinTable } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+  ManyToMany,
+  JoinTable,
+  DeleteDateColumn,
+} from 'typeorm';
 import { Category } from '../category/category.entity';
 import { Brand } from '../brand/brand.entity';
 import { Manufacturer } from '../manufacturer/manufacturer.entity';
@@ -9,7 +19,7 @@ import { Review } from '../review/review.entity';
 export enum ProductStatus {
   IN_STOCK = 'In stock',
   OUT_OF_STOCK = 'Out of stock',
-  COMING_SOON = 'Coming soon'
+  COMING_SOON = 'Coming soon',
 }
 
 @Entity({ name: 'Product' })
@@ -20,19 +30,19 @@ export class Product {
   @Column({ length: 255 })
   name: string;
 
-  @Column({ length: 255, unique: true})
+  @Column({ length: 255, unique: true })
   slug: string;
 
-  @Column({ type: 'text',})
+  @Column({ type: 'text' })
   description: string;
 
-  @Column({ length: 255,})
+  @Column({ length: 255 })
   thumbnail: string;
 
-  @Column({ length: 255,})
+  @Column({ length: 255 })
   sku: string;
 
-  @Column({ type: 'float',})
+  @Column({ type: 'float' })
   price: number;
 
   @Column({ type: 'enum', enum: ProductStatus })
@@ -56,40 +66,43 @@ export class Product {
   @Column({ type: 'timestamp', nullable: true })
   modified_at: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deleted_at: Date;
 
   // Quan hệ
-  @ManyToOne(() => Category, category => category.products)
+  @ManyToOne(() => Category, (category) => category.products)
   @JoinColumn({ name: 'category_id' })
   category: Category;
 
-  @ManyToOne(() => Brand, brand => brand.products)
+  @ManyToOne(() => Brand, (brand) => brand.products)
   @JoinColumn({ name: 'brand_id' })
   brand: Brand;
 
-  @ManyToOne(() => Manufacturer, manufacturer => manufacturer.products)
+  @ManyToOne(() => Manufacturer, (manufacturer) => manufacturer.products)
   @JoinColumn({ name: 'manufacturer_id' })
   manufacturer: Manufacturer;
 
-  @ManyToMany(() => Tag, tag => tag.products)
+  @ManyToMany(() => Tag, (tag) => tag.products)
   @JoinTable({
     name: 'ProductTag',
     joinColumn: {
-      name: 'product_id',       // Column name in the join table that references Product.id
-      referencedColumnName: 'id'
+      name: 'product_id', // Column name in the join table that references Product.id
+      referencedColumnName: 'id',
     },
     inverseJoinColumn: {
-      name: 'tag_id',           // Column name in the join table that references Tag.id
-      referencedColumnName: 'id'
-    }
+      name: 'tag_id', // Column name in the join table that references Tag.id
+      referencedColumnName: 'id',
+    },
   })
   tags: Tag[];
 
- // Quan hệ One-to-Many với ProductImage
-  @OneToMany(() => ProductImages, image => image.product, { cascade: true, onDelete: 'CASCADE' })
+  // Quan hệ One-to-Many với ProductImage
+  @OneToMany(() => ProductImages, (image) => image.product, {
+    cascade: true,
+    onDelete: 'CASCADE',
+  })
   images: ProductImages[];
 
-  @OneToMany(() => Review, review => review.product)
+  @OneToMany(() => Review, (review) => review.product)
   reviews: Review[];
 }

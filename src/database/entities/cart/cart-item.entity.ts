@@ -4,6 +4,7 @@ import {
   Column,
   ManyToOne,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { Cart } from './cart.entity';
 import { Product } from '../product/product.entity';
@@ -21,6 +22,9 @@ export class CartItem {
 
   @Column({ type: 'timestamp', nullable: true })
   modified_at: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 
   @ManyToOne(() => Cart, (cart) => cart.items, { onDelete: 'CASCADE' })
   @JoinColumn({ name: 'cart_id' })

@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, Check } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  Check,
+  DeleteDateColumn,
+} from 'typeorm';
 import { Product } from '../product/product.entity';
 import { User } from '../user/user.entity';
 
@@ -20,11 +28,14 @@ export class Review {
   @Column({ type: 'timestamp', nullable: true })
   modified_at: Date;
 
-  @ManyToOne(() => Product, product => product.reviews)
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
+
+  @ManyToOne(() => Product, (product) => product.reviews)
   @JoinColumn({ name: 'product_id' })
   product: Product;
 
-  @ManyToOne(() => User, user => user.reviews)
+  @ManyToOne(() => User, (user) => user.reviews)
   @JoinColumn({ name: 'user_id' })
   user: User;
 }

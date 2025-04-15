@@ -5,6 +5,7 @@ import {
   ManyToOne,
   OneToMany,
   JoinColumn,
+  DeleteDateColumn,
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { CartItem } from './cart-item.entity';
@@ -22,6 +23,9 @@ export class Cart {
 
   @Column({ type: 'timestamp', nullable: true })
   modified_at: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 
   @ManyToOne(() => User, (user) => user.carts)
   @JoinColumn({ name: 'user_id' })

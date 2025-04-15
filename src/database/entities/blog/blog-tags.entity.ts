@@ -1,4 +1,12 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn, ManyToMany } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  ManyToMany,
+  DeleteDateColumn,
+} from 'typeorm';
 import { Blog } from './blog.entity';
 
 @Entity({ name: 'BlogTag' })
@@ -15,9 +23,9 @@ export class BlogTag {
   @Column({ type: 'timestamp', nullable: true })
   modified_at: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deleted_at: Date;
 
-  @ManyToMany(() => Blog, blog => blog.tags)
+  @ManyToMany(() => Blog, (blog) => blog.tags)
   blog: Blog;
 }

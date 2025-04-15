@@ -1,15 +1,23 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, OneToMany, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  OneToMany,
+  JoinColumn,
+  DeleteDateColumn,
+} from 'typeorm';
 import { User } from '../user/user.entity';
 import { Payment } from '../payment/payment.entity';
 import { Coupon } from '../coupon/coupon.entity';
 import { OrderItem } from '../order/order-item.entity';
-import { Address } from '../address/address.entity'
+import { Address } from '../address/address.entity';
 
 export enum OrderStatus {
   PENDING = 'Pending',
   PROCESSING = 'Processing',
   SHIPPED = 'Shipped',
-  DELIVERED = 'Delivered'
+  DELIVERED = 'Delivered',
 }
 
 @Entity({ name: 'OrderDetail' })
@@ -32,6 +40,9 @@ export class OrderDetail {
   @Column({ type: 'timestamp', nullable: true })
   modified_at: Date;
 
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
+
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })
   user: User;
@@ -52,6 +63,6 @@ export class OrderDetail {
   @JoinColumn({ name: 'coupon_id' })
   coupon: Coupon;
 
-  @OneToMany(() => OrderItem, orderItem => orderItem.order)
+  @OneToMany(() => OrderItem, (orderItem) => orderItem.order)
   items: OrderItem[];
 }

@@ -1,8 +1,13 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  DeleteDateColumn,
+} from 'typeorm';
 
 export enum AddressType {
   BILLING = 'billing',
-  SHIPPING = 'shipping'
+  SHIPPING = 'shipping',
 }
 
 @Entity({ name: 'Address' })
@@ -27,4 +32,10 @@ export class Address {
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   created_at: Date;
+
+  @Column({ type: 'timestamp', nullable: true })
+  modified_at: Date;
+
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
+  deleted_at: Date;
 }

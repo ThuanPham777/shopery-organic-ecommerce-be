@@ -1,4 +1,11 @@
-import { Entity, PrimaryGeneratedColumn, Column, ManyToOne, JoinColumn } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  ManyToOne,
+  JoinColumn,
+  DeleteDateColumn,
+} from 'typeorm';
 import { Product } from './product.entity';
 
 @Entity({ name: 'ProductImages' })
@@ -15,10 +22,12 @@ export class ProductImages {
   @Column({ type: 'timestamp', nullable: true })
   modified_at: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deleted_at: Date;
 
-  @ManyToOne(() => Product, product => product.images, { onDelete: 'CASCADE' })
-  @JoinColumn({name: 'product_id'})
+  @ManyToOne(() => Product, (product) => product.images, {
+    onDelete: 'CASCADE',
+  })
+  @JoinColumn({ name: 'product_id' })
   product: Product;
 }

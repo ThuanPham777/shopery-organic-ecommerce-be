@@ -1,14 +1,19 @@
-import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryGeneratedColumn,
+  Column,
+  DeleteDateColumn,
+} from 'typeorm';
 
 export enum CouponType {
   PERCENTAGE = 'percentage',
-  FIXED = 'fixed'
+  FIXED = 'fixed',
 }
 
 export enum CouponStatus {
   ACTIVE = 'active',
   EXPIRED = 'expired',
-  DISABLED = 'disabled'
+  DISABLED = 'disabled',
 }
 
 @Entity({ name: 'Coupon' })
@@ -52,6 +57,6 @@ export class Coupon {
   @Column({ type: 'timestamp', nullable: true })
   modified_at: Date;
 
-  @Column({ type: 'timestamp', nullable: true })
+  @DeleteDateColumn({ type: 'timestamp', nullable: true })
   deleted_at: Date;
 }

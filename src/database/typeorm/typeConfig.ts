@@ -7,8 +7,8 @@ export const dataSourceOptions: DataSourceOptions = {
   database: process.env.DATABASE_NAME || 'shoperyorganic', // Default to 'shoperyorganic' if DB_DATABASE is not set
   username: process.env.DATABASE_USER || 'root', // Default to 'root' if DB_USERNAME is not set
   password: process.env.DATABASE_PASSWORD || 'thuan@7771412',
-  entities: [__dirname + "/../entities/**/*.entity{.ts,.js}"],
-  migrations: [__dirname + "/../migration/history/*{.js,.ts}"],
+  entities: [__dirname + '/../entities/**/*.entity{.ts,.js}'],
+  migrations: [__dirname + '/../migration/history/*{.js,.ts}'],
   logger: 'simple-console',
   synchronize: true, // never use TRUE in production!
   dropSchema: true,
