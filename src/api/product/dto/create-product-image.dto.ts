@@ -1,13 +1,13 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { IsNotEmpty, IsString } from 'class-validator';
-import { Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Column } from 'typeorm';
 
 export class CreateProductImageDto {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+  @ApiProperty({ example: '1' })
   @Column()
   product_id: number;
 
+  @ApiProperty({ example: 'milk1.jpg' })
   @IsNotEmpty()
   @IsString()
   image_url: string;

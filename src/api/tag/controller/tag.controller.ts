@@ -12,7 +12,9 @@ import {
 import { updateTagDto } from '../dto/update-tag.dto';
 import { createTagDto } from '../dto/create-tag.dto';
 import { TagService } from '../service/tag.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('tag')
 @Controller('tag')
 export class TagController {
   constructor(private readonly tagService: TagService) {}

@@ -1,14 +1,18 @@
 import { IsInt, IsNotEmpty, Min } from 'class-validator';
-import { PrimaryGeneratedColumn } from 'typeorm';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class CartItemDto {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+  @ApiProperty({
+    example: 101,
+  })
   @IsInt()
   @IsNotEmpty()
   product_id: number;
 
+  @ApiProperty({
+    example: 2,
+    minimum: 1,
+  })
   @IsInt()
   @Min(1)
   quantity: number;

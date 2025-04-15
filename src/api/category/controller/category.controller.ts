@@ -15,7 +15,9 @@ import { CategoryService } from '../service/category.service';
 import { createCategoryDto } from '../dto/create-category.dto';
 import { updateCategoryDto } from '../dto/update-category.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('category')
 @Controller('category')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}

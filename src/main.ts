@@ -1,15 +1,13 @@
-import "reflect-metadata";
-import { NestFactory } from "@nestjs/core";
-import { AppModule } from "./app.module";
-import { ValidationPipe } from "@nestjs/common";
-
-const PORT = 5000;
+import 'reflect-metadata';
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from '@nestjs/common';
+import * as dotenv from 'dotenv';
+import * as bodyParser from 'body-parser';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
-
-  // Thêm tiền tố `/api` trước tất cả các route
-  app.setGlobalPrefix('api');
 
   // Validation cho DTOs
   app.useGlobalPipes(new ValidationPipe({ transform: true }));
@@ -20,9 +18,23 @@ async function bootstrap() {
     credentials: true, // Cho phép gửi cookie (nếu có)
   });
 
-  await app.listen(PORT);
-  console.log(`🚀 Server is running on http://localhost:${PORT}/api`);
+  const config = new DocumentBuilder()
+    .setTitle('My API Shopery organic')
+    .setDescription('API Shopery organic')
+    .setVersion('1.0')
+    .addBearerAuth() // Optional: if you're using JWT Auth
+    .build();
+
+  const document = SwaggerModule.createDocument(app, config);
+  SwaggerModule.setup('api', app, document); // Swagger will be available at /api
+
+  // Tăng giới hạn request body lên 10MB
+  app.use(bodyParser.json({ limit: '10mb' }));
+  app.use(bodyParser.urlencoded({ limit: '10mb', extended: true }));
+
+  const port = process.env.PORT || 3000;
+  await app.listen(port);
+  console.log(`🚀 Server is running on http://localhost:${port}`);
 }
 
 bootstrap();
-

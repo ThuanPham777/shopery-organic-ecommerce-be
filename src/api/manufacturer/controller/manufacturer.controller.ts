@@ -12,7 +12,9 @@ import {
 import { updateManufacturerDto } from '../dto/update-manufacturer.dto';
 import { createManufacturerDto } from '../dto/create-manufacturer.dto';
 import { ManufacturerService } from '../service/manufacturer.service';
+import { ApiTags } from '@nestjs/swagger';
 
+@ApiTags('manufacturer')
 @Controller('manufacturer')
 export class ManufacturerController {
   constructor(private readonly manufacturerService: ManufacturerService) {}
