@@ -4,14 +4,14 @@ import {
   Get,
   Param,
   Query,
-  UseGuards,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { ProductService } from '../service/product.service';
-import { GetProductsDto } from '../dto/get-products.dto.';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { GetAllProducts } from '../dto/get-all-products.dto.';
+import { ApiPagRes } from 'src/type/custom-response.type';
+import { SUCCESS } from 'src/contants/response.constant';
 
 @ApiTags('products')
 @Controller('products')
@@ -20,13 +20,14 @@ export class ProductController {
 
   @Get()
   @UsePipes(new ValidationPipe({ transform: true }))
-  @UseGuards(JwtAuthGuard)
-  async getProducts(@Query() query: GetProductsDto) {
-    return this.productService.getProducts(query);
+  async getProducts(@Query() query: GetAllProducts) {
+    const { page, perPage } = query;
+    const result = await this.productService.getProducts(query);
+
+    return new ApiPagRes(result.products, result.total, page, perPage, SUCCESS);
   }
 
   @Get(':productId')
-  @UseGuards(JwtAuthGuard)
   async getProduct(@Param('productId') productId: number) {
     return this.productService.getProduct(productId);
   }

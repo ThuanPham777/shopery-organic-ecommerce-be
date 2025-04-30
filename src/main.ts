@@ -13,15 +13,25 @@ async function bootstrap() {
 
   // CORS cho phép frontend gọi API từ domain khác
   app.enableCors({
-    origin: '*', // Cho phép mọi domain truy cập
-    credentials: true, // Cho phép gửi cookie (nếu có)
+    origin: true, // Cho phép tất cả các domain
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true, // Cho phép gửi cookies
+    allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
   const config = new DocumentBuilder()
     .setTitle('My API Shopery organic')
     .setDescription('API Shopery organic')
     .setVersion('1.0')
-    .addBearerAuth() // Optional: if you're using JWT Auth
+    .addBearerAuth(
+      {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'Nhập JWT token (chỉ token, không kèm “Bearer ”)',
+      },
+      'bearerAuth', // security name, phải trùng với @ApiBearerAuth() nếu bạn dùng decorator
+    )
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

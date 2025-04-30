@@ -4,6 +4,7 @@ import { Manufacturer } from 'src/database/entities/manufacturer/manufacturer.en
 import { Repository } from 'typeorm';
 import { createManufacturerDto } from '../dto/create-manufacturer.dto';
 import { updateManufacturerDto } from '../dto/update-manufacturer.dto';
+import { GetAllManufacturers } from '../dto/get-all-manufacturers.dto';
 
 @Injectable()
 export class ManufacturerService {
@@ -12,22 +13,28 @@ export class ManufacturerService {
     private manufacturerRepository: Repository<Manufacturer>,
   ) {}
 
-  async getAllManufacturers() {
-    const manufacturers = await this.manufacturerRepository.find({
-      relations: [
-        'products',
-        'products.brand',
-        'products.category',
-        'products.tags',
-        'products.images',
-      ],
-    });
+  async getAllManufacturers(
+    query: GetAllManufacturers,
+  ): Promise<{ manufacturers: Manufacturer[]; total: number }> {
+    const { page = 1, perPage = 10 } = query;
+    const skip = (page - 1) * perPage;
+    const take = perPage;
+    const [manufacturers, total] =
+      await this.manufacturerRepository.findAndCount({
+        relations: [
+          'products',
+          'products.brand',
+          'products.category',
+          'products.tags',
+          'products.images',
+        ],
+        skip,
+        take,
+      });
 
-    if (!manufacturers) {
-      throw new NotFoundException('Manufacturer Not Found');
-    }
     return {
-      data: manufacturers,
+      manufacturers,
+      total,
     };
   }
 

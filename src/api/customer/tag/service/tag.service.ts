@@ -11,15 +11,7 @@ export class TagService {
   ) {}
 
   async getAllTags() {
-    const tags = await this.tagRepository.find({
-      relations: [
-        'products',
-        'products.manufacturer',
-        'products.category',
-        'products.tags',
-        'products.images',
-      ],
-    });
+    const tags = await this.tagRepository.find();
 
     if (!tags) {
       throw new NotFoundException('Tag Not Found');

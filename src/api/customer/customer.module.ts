@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AuthModule } from './auth/auth.module';
 import { ProductModule } from './product/product.module';
 import { CategoryModule } from './category/category.module';
 import { ManufacturerModule } from './manufacturer/manufacturer.module';
@@ -9,7 +8,6 @@ import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
-    AuthModule,
     ProductModule,
     CategoryModule,
     ManufacturerModule,

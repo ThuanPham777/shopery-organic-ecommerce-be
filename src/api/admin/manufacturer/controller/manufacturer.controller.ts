@@ -6,6 +6,7 @@ import {
   Param,
   Patch,
   Post,
+  Query,
   UseGuards,
   UsePipes,
   ValidationPipe,
@@ -13,29 +14,45 @@ import {
 import { updateManufacturerDto } from '../dto/update-manufacturer.dto';
 import { createManufacturerDto } from '../dto/create-manufacturer.dto';
 import { ManufacturerService } from '../service/manufacturer.service';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { RoleGuard } from 'src/guards/role.guard';
+import { Roles } from 'src/api/auth/decorators/roles.decorator';
+import { GetAllManufacturers } from '../dto/get-all-manufacturers.dto';
+import { ApiPagRes } from 'src/type/custom-response.type';
+import { SUCCESS } from 'src/contants/response.constant';
 
 @ApiTags('Admin / Manufacturer')
 @Controller('admin/manufacturer')
+@ApiBearerAuth('bearerAuth')
+@UseGuards(JwtAuthGuard, RoleGuard)
 export class ManufacturerController {
   constructor(private readonly manufacturerService: ManufacturerService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
-  async getAllManufacturers() {
-    return this.manufacturerService.getAllManufacturers();
+  @Roles('admin')
+  async getAllManufacturers(@Query() query: GetAllManufacturers) {
+    const { page, perPage } = query;
+    const result = await this.manufacturerService.getAllManufacturers(query);
+
+    return new ApiPagRes(
+      result.manufacturers,
+      result.total,
+      page,
+      perPage,
+      SUCCESS,
+    );
   }
 
   @Get(':manufacturerId')
-  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
   async getManufacturerById(@Param('manufacturerId') manufacturerId: number) {
     return this.manufacturerService.getManufacturerById(manufacturerId);
   }
 
   @Post('create')
-  @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe({ transform: true }))
+  @Roles('admin')
   async createManufacturer(
     @Body() createManufacturerDto: createManufacturerDto,
   ) {
@@ -43,8 +60,8 @@ export class ManufacturerController {
   }
 
   @Patch(':manufacturerId/update')
-  @UseGuards(JwtAuthGuard)
   @UsePipes(new ValidationPipe({ transform: true }))
+  @Roles('admin')
   async updateManufacturer(
     @Param('manufacturerId') manufacturerId: number,
     @Body() updateManufacturerDto: updateManufacturerDto,
@@ -56,7 +73,7 @@ export class ManufacturerController {
   }
 
   @Delete(':manufacturerId/delete')
-  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
   async deleteManufacturer(@Param('manufacturerId') manufacturerId: number) {
     return this.manufacturerService.deleteManufacturer(manufacturerId);
   }

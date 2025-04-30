@@ -21,6 +21,7 @@ import {
   deleteFromCloudinary,
 } from 'src/common/helper/cloudinary.helper';
 import { UpdateProductDto } from '../dto/update-product.dto';
+import { GetAllProducts } from '../dto/get-all-products.dto';
 @Injectable()
 export class ProductService {
   constructor(
@@ -43,84 +44,202 @@ export class ProductService {
   ) {}
 
   static folder = 'shopery-organic/products';
+
+  private readonly sortableFields = [
+    'name',
+    'price',
+    'created_at',
+    'modified_at',
+    'sold',
+    'quantity',
+  ];
   // Method to fetch all products
-  async getProducts() {
-    // Build the base query with custom SELECT.
-    // then join and add only the related "name" fields,
-    // and aggregate tags and productImages.
+  async getProducts(
+    query: GetAllProducts,
+  ): Promise<{ products: any[]; total: number }> {
+    const {
+      page = 1,
+      perPage = 10,
+      category,
+      manufacturer,
+      brand,
+      tag,
+      minPrice,
+      maxPrice,
+      rating,
+      keyword,
+      sorts = [],
+    } = query;
+    const skip = (page - 1) * perPage;
+    const take = perPage;
+
+    // Build base query for count
     let qb = this.productRepository
       .createQueryBuilder('product')
-      .select([
-        'product.id',
-        'product.name',
-        'product.slug',
-        'product.description',
-        'product.thumbnail',
-        'product.sku',
-        'product.price',
-        'product.status',
-        'product.quantity',
-        'product.sold',
-        'product.featured',
-        'product.discount',
-        'product.created_at',
-        'product.modified_at',
-        'product.deleted_at',
-      ])
-      .leftJoin('product.category', 'category')
-      .addSelect('category.name', 'categoryName')
-      .leftJoin('product.manufacturer', 'manufacturer')
-      .addSelect('manufacturer.name', 'manufacturerName')
-      .leftJoin('product.brand', 'brand')
-      .addSelect('brand.name', 'brandName')
-      .leftJoin('product.tags', 'tag')
-      .addSelect('GROUP_CONCAT(DISTINCT tag.name)', 'tagNames')
-      .leftJoin('product.images', 'productImage')
-      .addSelect(
-        'GROUP_CONCAT(DISTINCT productImage.image_url)',
-        'productImageUrls',
-      )
-      .groupBy('product.id');
-    // Use getRawAndEntities to get both raw results and entities.
-    // We'll mainly work with the raw result for our custom selections.
-    const { raw, entities } = await qb.getRawAndEntities();
-    // Note: raw items have keys like product_id, categoryName, etc.
+      .andWhere('product.deleted_at IS NULL');
 
-    // Map raw result into the desired shape.
-    const data = raw.map((rawItem) => ({
-      id: rawItem.product_id,
-      name: rawItem.product_name,
-      slug: rawItem.product_slug,
-      description: rawItem.product_description,
-      thumbnail: rawItem.product_thumbnail,
-      sku: rawItem.product_sku,
-      price: rawItem.product_price,
-      status: rawItem.product_status,
-      quantity: rawItem.product_quantity,
-      sold: rawItem.product_sold,
-      featured: rawItem.product_featured,
-      discount: rawItem.product_discount,
-      category: rawItem.categoryName,
-      manufacturer: rawItem.manufacturerName,
-      brand: rawItem.brandName,
-      tags: rawItem.tagNames ? rawItem.tagNames.split(',') : [],
-      images: rawItem.productImageUrls
-        ? rawItem.productImageUrls.split(',')
-        : [], // Array of image_url strings.
-      created_at: rawItem.product_created_at,
-      modified_at: rawItem.product_modified_at,
-      deleted_at: rawItem.product_deleted_at,
+    // Conditional joins only if needed for filters
+    if (category) {
+      qb = qb.leftJoin(
+        'product.category',
+        'category',
+        'category.deleted_at IS NULL',
+      );
+      qb = qb.andWhere('category.slug = :category', { category });
+    }
+    if (manufacturer) {
+      qb = qb.leftJoin(
+        'product.manufacturer',
+        'manufacturer',
+        'manufacturer.deleted_at IS NULL',
+      );
+      qb = qb.andWhere('manufacturer.name = :manufacturer', { manufacturer });
+    }
+    if (brand) {
+      qb = qb.leftJoin('product.brand', 'brand', 'brand.deleted_at IS NULL');
+      qb = qb.andWhere('brand.name = :brand', { brand });
+    }
+    if (tag) {
+      qb = qb.leftJoin('product.tags', 'tag', 'tag.deleted_at IS NULL');
+      qb = qb.andWhere('tag.name = :tag', { tag });
+    }
+    if (minPrice) {
+      qb = qb.andWhere('product.price >= :minPrice', { minPrice });
+    }
+    if (maxPrice) {
+      qb = qb.andWhere('product.price <= :maxPrice', { maxPrice });
+    }
+    if (rating) {
+      qb = qb.andWhere(
+        (subQb) => {
+          const subQuery = subQb
+            .subQuery()
+            .select('COALESCE(AVG(review.rating), 0)')
+            .from('Review', 'review')
+            .where('review.product_id = product.id')
+            .getQuery();
+          return `${subQuery} >= :rating`;
+        },
+        { rating },
+      );
+    }
+    if (keyword) {
+      qb = qb.andWhere('product.name LIKE :keyword', {
+        keyword: `%${keyword}%`,
+      });
+    }
+
+    // Get total count
+    const total = await qb.getCount();
+
+    // Build data query with all relations
+    let dataQb = this.productRepository
+      .createQueryBuilder('product')
+      .leftJoinAndSelect(
+        'product.category',
+        'category',
+        'category.deleted_at IS NULL',
+      )
+      .leftJoinAndSelect(
+        'product.manufacturer',
+        'manufacturer',
+        'manufacturer.deleted_at IS NULL',
+      )
+      .leftJoinAndSelect('product.brand', 'brand', 'brand.deleted_at IS NULL')
+      .leftJoinAndSelect('product.tags', 'tags', 'tags.deleted_at IS NULL')
+      .leftJoinAndSelect('product.images', 'images')
+      .andWhere('product.deleted_at IS NULL');
+
+    // Apply the same filters
+    if (category) {
+      dataQb = dataQb.andWhere('category.slug = :category', { category });
+    }
+    if (manufacturer) {
+      dataQb = dataQb.andWhere('manufacturer.name = :manufacturer', {
+        manufacturer,
+      });
+    }
+    if (brand) {
+      dataQb = dataQb.andWhere('brand.name = :brand', { brand });
+    }
+    if (tag) {
+      dataQb = dataQb.andWhere('tags.name = :tag', { tag });
+    }
+    if (minPrice) {
+      dataQb = dataQb.andWhere('product.price >= :minPrice', { minPrice });
+    }
+    if (maxPrice) {
+      dataQb = dataQb.andWhere('product.price <= :maxPrice', { maxPrice });
+    }
+    if (rating) {
+      dataQb = dataQb.andWhere(
+        (subQb) => {
+          const subQuery = subQb
+            .subQuery()
+            .select('COALESCE(AVG(review.rating), 0)')
+            .from('Review', 'review')
+            .where('review.product_id = product.id')
+            .getQuery();
+          return `${subQuery} >= :rating`;
+        },
+        { rating },
+      );
+    }
+    if (keyword) {
+      dataQb = dataQb.andWhere('product.name LIKE :keyword', {
+        keyword: `%${keyword}%`,
+      });
+    }
+
+    // Apply sorting
+    if (sorts.length > 0) {
+      sorts.forEach((sort) => {
+        const [field, order] = sort.split('|');
+        if (
+          this.sortableFields.includes(field) &&
+          (order === 'asc' || order === 'desc')
+        ) {
+          dataQb = dataQb.addOrderBy(
+            `product.${field}`,
+            order.toUpperCase() as 'ASC' | 'DESC',
+          );
+        }
+      });
+    } else {
+      dataQb = dataQb.orderBy('product.created_at', 'DESC');
+    }
+
+    // Apply pagination
+    dataQb = dataQb.skip(skip).take(take);
+
+    // Fetch entities
+    const products = await dataQb.getMany();
+
+    // Map to desired format
+    const data = products.map((product) => ({
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      description: product.description,
+      thumbnail: product.thumbnail,
+      sku: product.sku,
+      price: product.price,
+      status: product.status,
+      quantity: product.quantity,
+      sold: product.sold,
+      featured: product.featured,
+      discount: product.discount,
+      category: product.category?.name ?? '',
+      manufacturer: product.manufacturer?.name ?? '',
+      brand: product.brand?.name ?? '',
+      tags: product.tags.map((tag) => tag.name),
+      images: product.images.map((image) => image.image_url),
+      created_at: product.created_at,
+      modified_at: product.modified_at,
+      deleted_at: product.deleted_at,
     }));
 
-    // To get the total count correctly when grouping, you might need a separate count query.
-    // For simplicity, we'll assume "entities" length is the current page count.
-    // You may want to run a separate count query that matches your filters without pagination.
-    const total = data.length; // Replace with a proper total count if needed.
-
-    return {
-      data,
-      total,
-    };
+    return { products: data, total };
   }
 
   // Method fetch product by id

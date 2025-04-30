@@ -4,9 +4,11 @@ import {
   Controller,
   Delete,
   Get,
+  Logger,
   Param,
   Patch,
   Post,
+  Query,
   UploadedFile,
   UploadedFiles,
   UseGuards,
@@ -18,29 +20,39 @@ import { ProductService } from '../service/product.service';
 import { CreateProductDto } from '../dto/create-product.dto';
 import { UpdateProductDto } from '../dto/update-product.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { RoleGuard } from 'src/guards/role.guard';
+import { Roles } from 'src/api/auth/decorators/roles.decorator';
+import { GetAllProducts } from '../dto/get-all-products.dto';
+import { ApiPagRes } from 'src/type/custom-response.type';
+import { SUCCESS } from 'src/contants/response.constant';
 
 @ApiTags('Admin / Product')
-@Controller('amdin/product')
+@Controller('admin/product')
+@ApiBearerAuth('bearerAuth')
+@UseGuards(JwtAuthGuard, RoleGuard)
 export class ProductController {
   constructor(private readonly productService: ProductService) {}
 
   @Get()
+  @Roles('admin')
   @UsePipes(new ValidationPipe({ transform: true }))
-  @UseGuards(JwtAuthGuard)
-  async getProducts() {
-    return this.productService.getProducts();
+  async getProducts(@Query() query: GetAllProducts) {
+    const { page, perPage } = query;
+    const result = await this.productService.getProducts(query);
+
+    return new ApiPagRes(result.products, result.total, page, perPage, SUCCESS);
   }
 
   @Get(':productId')
-  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
   async getProduct(@Param('productId') productId: number) {
     return this.productService.getProduct(productId);
   }
 
   @Post('create')
-  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
   @UseInterceptors(FileInterceptor('thumbnail'))
   async createProduct(
     @Body() createProductDto: CreateProductDto,
@@ -49,7 +61,7 @@ export class ProductController {
     return this.productService.createProduct(createProductDto, thumbnail);
   }
   @Patch(':productId/update')
-  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
   @UseInterceptors(FileInterceptor('thumbnail'))
   async updateProduct(
     @Param('productId') productId: number,
@@ -64,21 +76,21 @@ export class ProductController {
   }
 
   @Delete(':productId/delete')
-  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
   async deleteProductById(@Param('productId') productId: number) {
     return this.productService.deleteProductById(productId);
   }
 
   // Handle with product Images
   @Get(':productId/Images')
-  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
   async getProductImages(@Param('productId') productId: number) {
     return this.productService.getProductImages(productId);
   }
 
   @Post(':productId/images/add')
+  @Roles('admin')
   @UseInterceptors(FilesInterceptor('images', 10))
-  @UseGuards(JwtAuthGuard)
   async uploadProductImages(
     @Param('productId') productId: number,
     @UploadedFiles() images: Express.Multer.File[],
@@ -87,8 +99,8 @@ export class ProductController {
   }
 
   @Patch(':productId/images/:imageId/update')
+  @Roles('admin')
   @UseInterceptors(FileInterceptor('newImage'))
-  @UseGuards(JwtAuthGuard)
   async updateProductImage(
     @Param('productId') productId: number,
     @Param('imageId') imageId: number,
@@ -99,7 +111,7 @@ export class ProductController {
 
   // delete a single product image
   @Delete(':productId/images/:imageId/delete')
-  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
   async deleteProductImage(
     @Param('productId') productId: number,
     @Param('imageId') imageId: number,
@@ -109,7 +121,7 @@ export class ProductController {
 
   // delete all images
   @Delete(':productId/images/delete')
-  @UseGuards(JwtAuthGuard)
+  @Roles('admin')
   async deleteAllProductImages(@Param('productId') productId: number) {
     return this.productService.deleteAllProductImages(productId);
   }

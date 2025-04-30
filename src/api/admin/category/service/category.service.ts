@@ -14,6 +14,7 @@ import {
   extractPublicId,
   uploadToCloudinary,
 } from 'src/common/helper/cloudinary.helper';
+import { GetAllCategories } from '../dto/get-all-categories.dto';
 
 @Injectable()
 export class CategoryService {
@@ -23,8 +24,13 @@ export class CategoryService {
   ) {}
   static folder = 'shopery-organic/category';
 
-  async getAllCategories() {
-    const categories = await this.categoryRepository.find({
+  async getAllCategories(
+    query: GetAllCategories,
+  ): Promise<{ categories: Category[]; total: number }> {
+    const { page = 1, perPage = 10 } = query;
+    const skip = (page - 1) * perPage;
+    const take = perPage;
+    const [categories, total] = await this.categoryRepository.findAndCount({
       relations: [
         'products',
         'products.brand',
@@ -32,14 +38,13 @@ export class CategoryService {
         'products.tags',
         'products.images',
       ],
+      skip,
+      take,
     });
 
-    if (!categories) {
-      // throw error
-      throw new NotFoundException('Category Not Found');
-    }
     return {
-      data: categories,
+      categories,
+      total,
     };
   }
 

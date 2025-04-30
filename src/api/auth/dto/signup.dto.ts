@@ -1,14 +1,8 @@
 // src/user/dto/create-user.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsString,
-  IsNotEmpty,
-  IsEmail,
-  Matches,
-  MinLength,
-} from 'class-validator';
+import { IsString, IsNotEmpty, Matches, MinLength } from 'class-validator';
 
-export class CreateUserDto {
+export class SignupDto {
   @ApiProperty({
     example: 'user123',
     description: 'Tên người dùng (bắt buộc có chữ, không chứa khoảng trắng)',
@@ -22,15 +16,7 @@ export class CreateUserDto {
   username: string;
 
   @ApiProperty({
-    example: 'user@example.com',
-    description: 'Email của người dùng',
-  })
-  @IsEmail({}, { message: 'Email không hợp lệ' })
-  @IsNotEmpty({ message: 'Email không được để trống' })
-  email: string;
-
-  @ApiProperty({
-    example: 'Password123!',
+    example: '123456789',
     description: 'Mật khẩu của người dùng',
     minLength: 8,
   })
@@ -39,7 +25,7 @@ export class CreateUserDto {
   password: string;
 
   @ApiProperty({
-    example: 'Password123!',
+    example: '123456789',
     description: 'Xác nhận mật khẩu của người dùng',
     minLength: 8,
   })

@@ -4,6 +4,7 @@ import { Tag } from 'src/database/entities/tag/tag.entity';
 import { Repository } from 'typeorm';
 import { createTagDto } from '../dto/create-tag.dto';
 import { updateTagDto } from '../dto/update-tag.dto';
+import { GetAllTags } from '../dto/get-all-tags.dto';
 
 @Injectable()
 export class TagService {
@@ -12,8 +13,12 @@ export class TagService {
     private tagRepository: Repository<Tag>,
   ) {}
 
-  async getAllTags() {
-    const tags = await this.tagRepository.find({
+  async getAllTags(query: GetAllTags): Promise<{ tags: Tag[]; total: number }> {
+    const { page = 1, perPage = 10 } = query;
+    const skip = (page - 1) * perPage;
+    const take = perPage;
+
+    const [tags, total] = await this.tagRepository.findAndCount({
       relations: [
         'products',
         'products.manufacturer',
@@ -21,13 +26,13 @@ export class TagService {
         'products.tags',
         'products.images',
       ],
+      skip,
+      take,
     });
 
-    if (!tags) {
-      throw new NotFoundException('Tag Not Found');
-    }
     return {
-      data: tags,
+      tags,
+      total,
     };
   }
 

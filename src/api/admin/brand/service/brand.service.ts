@@ -4,6 +4,7 @@ import { Brand } from 'src/database/entities/brand/brand.entity';
 import { Repository } from 'typeorm';
 import { createBrandDto } from '../dto/create-brand.dto';
 import { updateBrandDto } from '../dto/update-brand.dto';
+import { GetAllBrands } from '../dto/get-all-brands.dto';
 
 @Injectable()
 export class BrandService {
@@ -12,8 +13,14 @@ export class BrandService {
     private brandRepository: Repository<Brand>,
   ) {}
 
-  async getAllBrands() {
-    const brands = await this.brandRepository.find({
+  async getAllBrands(
+    query: GetAllBrands,
+  ): Promise<{ brands: Brand[]; total: number }> {
+    const { page = 1, perPage = 10 } = query;
+    const skip = (page - 1) * perPage;
+    const take = perPage;
+
+    const [brands, total] = await this.brandRepository.findAndCount({
       relations: [
         'products',
         'products.manufacturer',
@@ -21,14 +28,10 @@ export class BrandService {
         'products.tags',
         'products.images',
       ],
+      skip,
+      take,
     });
-
-    if (!brands) {
-      throw new NotFoundException('Brand Not Found');
-    }
-    return {
-      data: brands,
-    };
+    return { brands, total };
   }
 
   async getBrandById(brandId: number) {

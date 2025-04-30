@@ -11,15 +11,7 @@ export class ManufacturerService {
   ) {}
 
   async getAllManufacturers() {
-    const manufacturers = await this.manufacturerRepository.find({
-      relations: [
-        'products',
-        'products.brand',
-        'products.category',
-        'products.tags',
-        'products.images',
-      ],
-    });
+    const manufacturers = await this.manufacturerRepository.find();
 
     if (!manufacturers) {
       throw new NotFoundException('Manufacturer Not Found');

@@ -13,6 +13,7 @@ import { CartService } from '../service/cart.service';
 import { CartItemDto } from '../dto/cart-item.dto';
 import { ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
+import { RoleGuard } from 'src/guards/role.guard';
 
 @ApiTags('cart')
 @Controller('cart')
@@ -20,7 +21,6 @@ export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @Get()
-  @UseGuards(JwtAuthGuard)
   async getCart(
     @Query('userId') userId?: number,
     @Query('sessionId') sessionId?: string,
@@ -29,7 +29,6 @@ export class CartController {
   }
 
   @Post('add')
-  @UseGuards(JwtAuthGuard)
   async addToCart(
     @Body() cartItemDto: CartItemDto,
     @Query('userId') userId?: string,
@@ -43,7 +42,6 @@ export class CartController {
   }
 
   @Patch('update/:cartItemId')
-  @UseGuards(JwtAuthGuard)
   async updateCartItem(
     @Param('cartItemId') cartItemId: number,
     @Body('quantity') quantity: number,
@@ -53,7 +51,6 @@ export class CartController {
   }
 
   @Delete('remove/:cartItemId')
-  @UseGuards(JwtAuthGuard)
   async removeCartItem(
     @Param('cartItemId') cartItemId: number,
     @Query('sessionId') sessionId: string,
@@ -62,7 +59,6 @@ export class CartController {
   }
 
   @Delete('clear')
-  @UseGuards(JwtAuthGuard)
   async clearCart(
     @Query('userId') userId: number,
     @Query('sessionId') sessionId: string,
@@ -71,7 +67,6 @@ export class CartController {
   }
 
   @Post('merge')
-  @UseGuards(JwtAuthGuard)
   async mergeCart(
     @Query('userId') userId: number,
     @Query('sessionId') sessionId: string,

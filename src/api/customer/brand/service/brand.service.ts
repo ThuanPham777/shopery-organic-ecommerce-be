@@ -10,15 +10,7 @@ export class BrandService {
   ) {}
 
   async getAllBrands() {
-    const brands = await this.brandRepository.find({
-      relations: [
-        'products',
-        'products.manufacturer',
-        'products.category',
-        'products.tags',
-        'products.images',
-      ],
-    });
+    const brands = await this.brandRepository.find();
 
     if (!brands) {
       throw new NotFoundException('Brand Not Found');

@@ -4,7 +4,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from 'src/database/entities/user/user.entity';
-import { EUserRole, EUserStatus } from 'src/enums/user.enums';
+import { EUserRole } from 'src/enums/user.enums';
 
 @Injectable()
 export class AdminService {
@@ -12,10 +12,6 @@ export class AdminService {
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
   ) {}
-
-  async findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email } });
-  }
 
   async getAllUsers(): Promise<User[]> {
     return await this.userRepository.find({

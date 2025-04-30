@@ -1,18 +1,9 @@
-import { IsOptional, IsString, IsInt, Min } from 'class-validator';
-import { Type } from 'class-transformer';
 import { ApiPropertyOptional } from '@nestjs/swagger';
+import { Type } from 'class-transformer';
+import { IsInt, IsOptional, IsString, Min } from 'class-validator';
+import { ApiPagReq } from 'src/type/custom-response.type';
 
-export class GetProductsDto {
-  @ApiPropertyOptional({
-    example: 1,
-    description: 'Page number for pagination (starting from 1)',
-  })
-  @IsOptional()
-  @Type(() => Number)
-  @IsInt()
-  @Min(1)
-  page?: number;
-
+export class GetAllProducts extends ApiPagReq {
   @ApiPropertyOptional({
     example: 'fruits',
     description: 'Filter products by category slug',
@@ -23,7 +14,7 @@ export class GetProductsDto {
 
   @ApiPropertyOptional({
     example: 'green-farm',
-    description: 'Filter products by manufacturer slug or name',
+    description: 'Filter products by manufacturer name',
   })
   @IsOptional()
   @IsString()
@@ -31,7 +22,7 @@ export class GetProductsDto {
 
   @ApiPropertyOptional({
     example: 'eco-brand',
-    description: 'Filter products by brand slug or name',
+    description: 'Filter products by brand name',
   })
   @IsOptional()
   @IsString()
@@ -75,11 +66,8 @@ export class GetProductsDto {
   @Min(1)
   rating?: number;
 
-  @ApiPropertyOptional({
-    example: 'price_asc',
-    description: 'Sort order (e.g., price_asc, price_desc, rating_desc)',
-  })
+  @ApiPropertyOptional({ type: 'string', nullable: true, required: false })
+  @Type(() => String)
   @IsOptional()
-  @IsString()
-  sort?: string;
+  keyword?: string;
 }

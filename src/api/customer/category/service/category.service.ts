@@ -12,15 +12,7 @@ export class CategoryService {
   static folder = 'shopery-organic/category';
 
   async getAllCategories() {
-    const categories = await this.categoryRepository.find({
-      relations: [
-        'products',
-        'products.brand',
-        'products.manufacturer',
-        'products.tags',
-        'products.images',
-      ],
-    });
+    const categories = await this.categoryRepository.find();
 
     if (!categories) {
       // throw error
