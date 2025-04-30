@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { getDatabaseConfig } from './database/typeorm/typeorm.config';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -24,6 +24,6 @@ import { RedisModule } from './redis/redis.module';
 })
 export class AppModule {
   async onModuleInit() {
-    console.log('Module initialization...');
+    Logger.log('Module initialization...');
   }
 }

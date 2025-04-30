@@ -1,0 +1,31 @@
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Manufacturer } from 'src/database/entities/manufacturer/manufacturer.entity';
+import { Repository } from 'typeorm';
+
+@Injectable()
+export class ManufacturerService {
+  constructor(
+    @InjectRepository(Manufacturer)
+    private manufacturerRepository: Repository<Manufacturer>,
+  ) {}
+
+  async getAllManufacturers() {
+    const manufacturers = await this.manufacturerRepository.find({
+      relations: [
+        'products',
+        'products.brand',
+        'products.category',
+        'products.tags',
+        'products.images',
+      ],
+    });
+
+    if (!manufacturers) {
+      throw new NotFoundException('Manufacturer Not Found');
+    }
+    return {
+      data: manufacturers,
+    };
+  }
+}
