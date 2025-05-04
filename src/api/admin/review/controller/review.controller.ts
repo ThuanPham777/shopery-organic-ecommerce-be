@@ -16,7 +16,11 @@ import { Roles } from 'src/api/auth/decorators/roles.decorator';
 import { EUserRole } from 'src/enums/user.enums';
 import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { GetAllReviews } from 'src/api/customer/review/dto/get-all-reviews.dto';
-import { ApiPagRes } from 'src/type/custom-response.type';
+import {
+  ApiNullableRes,
+  ApiPagRes,
+  ApiRes,
+} from 'src/type/custom-response.type';
 import { SUCCESS } from 'src/contants/response.constant';
 
 @ApiTags('Admin / Review')
@@ -32,16 +36,12 @@ export class ReviewController {
     @Param('reviewId', ParseIntPipe) reviewId: number,
     @Request() req, // inject user từ JWT
   ) {
-    const result = await this.reviewService.deleteReview(reviewId, {
+    await this.reviewService.deleteReview(reviewId, {
       userId: req.user.userId,
       role: req.user.role,
     });
-    return {
-      success: result,
-      message: result
-        ? 'Review deleted successfully'
-        : 'Review not found or not allowed',
-    };
+
+    return new ApiNullableRes(null, SUCCESS);
   }
 
   @Get(':productId')

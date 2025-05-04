@@ -38,7 +38,7 @@ export class ManufacturerService {
     };
   }
 
-  async getManufacturerById(manufacturerId: number) {
+  async getManufacturerById(manufacturerId: number): Promise<Manufacturer> {
     const manufacturer = await this.manufacturerRepository.findOne({
       where: { id: manufacturerId },
     });
@@ -47,29 +47,25 @@ export class ManufacturerService {
       throw new NotFoundException('Manufacturer Not Found');
     }
 
-    return {
-      data: manufacturer,
-    };
+    return manufacturer;
   }
 
-  async createManufacturer(createManufacturerDto: createManufacturerDto) {
+  async createManufacturer(
+    createManufacturerDto: createManufacturerDto,
+  ): Promise<Manufacturer> {
     const manufacturer = this.manufacturerRepository.create({
       ...createManufacturerDto,
     });
 
     const newManufacturer =
       await this.manufacturerRepository.save(manufacturer);
-    return {
-      data: newManufacturer,
-      success: true,
-      message: 'Manufacturer created successfully',
-    };
+    return newManufacturer;
   }
 
   async updateManufacturer(
     manufacturerId: number,
     updateManufacturerDto: updateManufacturerDto,
-  ) {
+  ): Promise<Manufacturer> {
     const manufacturer = await this.manufacturerRepository.findOne({
       where: { id: manufacturerId },
     });
@@ -83,14 +79,10 @@ export class ManufacturerService {
     const updatedManufacturer =
       await this.manufacturerRepository.save(manufacturer);
 
-    return {
-      data: updatedManufacturer,
-      success: true,
-      message: 'Manufacturer updated successfully',
-    };
+    return updatedManufacturer;
   }
 
-  async deleteManufacturer(manufacturerId: number) {
+  async deleteManufacturer(manufacturerId: number): Promise<Boolean> {
     const manufacturer = await this.manufacturerRepository.findOne({
       where: { id: manufacturerId },
     });
@@ -101,6 +93,6 @@ export class ManufacturerService {
 
     await this.manufacturerRepository.delete({ id: manufacturerId });
 
-    return { success: true, message: 'Manufacturer deleted successfully' };
+    return true;
   }
 }

@@ -243,7 +243,7 @@ export class ProductService {
   }
 
   // Method fetch product by id
-  async getProduct(productId: number) {
+  async getProductById(productId: number) {
     // Fetch the product along with its nested relations.
     const product = await this.productRepository.findOne({
       where: { id: productId },

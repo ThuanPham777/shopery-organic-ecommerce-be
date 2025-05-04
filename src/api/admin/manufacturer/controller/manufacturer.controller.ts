@@ -19,7 +19,11 @@ import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/api/auth/decorators/roles.decorator';
 import { GetAllManufacturers } from '../dto/get-all-manufacturers.dto';
-import { ApiPagRes } from 'src/type/custom-response.type';
+import {
+  ApiNullableRes,
+  ApiPagRes,
+  ApiRes,
+} from 'src/type/custom-response.type';
 import { SUCCESS } from 'src/contants/response.constant';
 
 @ApiTags('Admin / Manufacturer')
@@ -47,7 +51,10 @@ export class ManufacturerController {
   @Get(':manufacturerId')
   @Roles('admin')
   async getManufacturerById(@Param('manufacturerId') manufacturerId: number) {
-    return this.manufacturerService.getManufacturerById(manufacturerId);
+    const manufacturer =
+      await this.manufacturerService.getManufacturerById(manufacturerId);
+
+    return new ApiRes(manufacturer, SUCCESS);
   }
 
   @Post('create')
@@ -56,7 +63,11 @@ export class ManufacturerController {
   async createManufacturer(
     @Body() createManufacturerDto: createManufacturerDto,
   ) {
-    return this.manufacturerService.createManufacturer(createManufacturerDto);
+    const newManufacturer = await this.manufacturerService.createManufacturer(
+      createManufacturerDto,
+    );
+
+    return new ApiRes(newManufacturer, SUCCESS);
   }
 
   @Patch(':manufacturerId/update')
@@ -66,15 +77,20 @@ export class ManufacturerController {
     @Param('manufacturerId') manufacturerId: number,
     @Body() updateManufacturerDto: updateManufacturerDto,
   ) {
-    return this.manufacturerService.updateManufacturer(
-      manufacturerId,
-      updateManufacturerDto,
-    );
+    const updatedManufacturer =
+      await this.manufacturerService.updateManufacturer(
+        manufacturerId,
+        updateManufacturerDto,
+      );
+
+    return new ApiRes(updatedManufacturer, SUCCESS);
   }
 
   @Delete(':manufacturerId/delete')
   @Roles('admin')
   async deleteManufacturer(@Param('manufacturerId') manufacturerId: number) {
-    return this.manufacturerService.deleteManufacturer(manufacturerId);
+    await this.manufacturerService.deleteManufacturer(manufacturerId);
+
+    return new ApiNullableRes(null, SUCCESS);
   }
 }

@@ -18,9 +18,13 @@ import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/api/auth/decorators/roles.decorator';
-import { ApiPagRes } from 'src/type/custom-response.type';
+import {
+  ApiNullableRes,
+  ApiPagRes,
+  ApiRes,
+} from 'src/type/custom-response.type';
 import { SUCCESS } from 'src/contants/response.constant';
-import { GetAllBrands } from '../dto/get-all-brands.dto';
+import { GetAllBrandsDto } from '../dto/get-all-brands.dto';
 
 @ApiTags('Admin / Brand')
 @Controller('admin/brand')
@@ -31,7 +35,7 @@ export class BrandController {
 
   @Get()
   @Roles('admin')
-  async getAllBrands(@Query() query: GetAllBrands) {
+  async getAllBrands(@Query() query: GetAllBrandsDto) {
     const { page, perPage } = query;
     const result = await this.brandService.getAllBrands(query);
 
@@ -39,13 +43,17 @@ export class BrandController {
   }
   @Get(':brandId')
   async getBrandById(@Param('brandId') brandId: number) {
-    return this.brandService.getBrandById(brandId);
+    const brand = await this.brandService.getBrandById(brandId);
+
+    return new ApiRes(brand, SUCCESS);
   }
 
   @Post('create')
   @UsePipes(new ValidationPipe({ transform: true }))
   async createBrand(@Body() createBrandDto: createBrandDto) {
-    return this.brandService.createBrand(createBrandDto);
+    const newBrand = await this.brandService.createBrand(createBrandDto);
+
+    return new ApiRes(newBrand, SUCCESS);
   }
 
   @Patch(':brandId/update')
@@ -54,11 +62,18 @@ export class BrandController {
     @Param('brandId') brandId: number,
     @Body() updateBrandDto: updateBrandDto,
   ) {
-    return this.brandService.updateBrand(brandId, updateBrandDto);
+    const updatedBrand = await this.brandService.updateBrand(
+      brandId,
+      updateBrandDto,
+    );
+
+    return new ApiRes(updatedBrand, SUCCESS);
   }
 
   @Delete(':brandId/delete')
   async deleteBrand(@Param('brandId') brandId: number) {
-    return this.brandService.deleteBrand(brandId);
+    await this.brandService.deleteBrand(brandId);
+
+    return new ApiNullableRes(null, SUCCESS);
   }
 }

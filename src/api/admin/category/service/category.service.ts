@@ -48,7 +48,7 @@ export class CategoryService {
     };
   }
 
-  async getCategoryById(categoryId: number) {
+  async getCategoryById(categoryId: number): Promise<Category> {
     const category = await this.categoryRepository.findOne({
       where: { id: categoryId },
     });
@@ -58,15 +58,13 @@ export class CategoryService {
       throw new NotFoundException('Category Not Found');
     }
 
-    return {
-      data: category,
-    };
+    return category;
   }
 
   async createCategory(
     createCategoryDto: createCategoryDto,
     image: Express.Multer.File,
-  ) {
+  ): Promise<Category> {
     if (!image) {
       throw new BadRequestException('image file is required');
     }
@@ -83,18 +81,14 @@ export class CategoryService {
     });
 
     const newCategory = await this.categoryRepository.save(category);
-    return {
-      data: newCategory,
-      success: true,
-      message: 'category created successfully',
-    };
+    return newCategory;
   }
 
   async updateCategory(
     categoryId: number,
     updateCategoryDto: updateCategoryDto,
     image?: Express.Multer.File,
-  ) {
+  ): Promise<Category> {
     const category = await this.categoryRepository.findOne({
       where: { id: categoryId },
     });
@@ -124,14 +118,10 @@ export class CategoryService {
 
     const updatedCategory = await this.categoryRepository.save(category);
 
-    return {
-      data: updatedCategory,
-      success: true,
-      message: 'Category updated successfully',
-    };
+    return updatedCategory;
   }
 
-  async deleteCategory(categoryId: number) {
+  async deleteCategory(categoryId: number): Promise<boolean> {
     const category = await this.categoryRepository.findOne({
       where: { id: categoryId },
     });
@@ -149,6 +139,6 @@ export class CategoryService {
     // Xóa sản phẩm khỏi database
     await this.categoryRepository.delete({ id: categoryId });
 
-    return { success: true, message: 'Product deleted successfully' };
+    return true;
   }
 }

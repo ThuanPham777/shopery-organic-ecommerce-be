@@ -25,7 +25,7 @@ import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/api/auth/decorators/roles.decorator';
 import { GetAllProducts } from '../dto/get-all-products.dto';
-import { ApiPagRes } from 'src/type/custom-response.type';
+import { ApiPagRes, ApiRes } from 'src/type/custom-response.type';
 import { SUCCESS } from 'src/contants/response.constant';
 
 @ApiTags('Admin / Product')
@@ -47,8 +47,10 @@ export class ProductController {
 
   @Get(':productId')
   @Roles('admin')
-  async getProduct(@Param('productId') productId: number) {
-    return this.productService.getProduct(productId);
+  async getProductById(@Param('productId') productId: number) {
+    const product = await this.productService.getProductById(productId);
+
+    return new ApiRes(product, SUCCESS);
   }
 
   @Post('create')

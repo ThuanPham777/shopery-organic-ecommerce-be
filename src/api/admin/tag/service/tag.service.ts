@@ -36,7 +36,7 @@ export class TagService {
     };
   }
 
-  async getTagById(tagId: number) {
+  async getTagById(tagId: number): Promise<Tag> {
     const tag = await this.tagRepository.findOne({
       where: { id: tagId },
     });
@@ -45,25 +45,20 @@ export class TagService {
       throw new NotFoundException('Tag Not Found');
     }
 
-    return {
-      data: tag,
-    };
+    return tag;
   }
 
-  async createTag(createTagDto: createTagDto) {
+  async createTag(createTagDto: createTagDto): Promise<Tag> {
     const tag = this.tagRepository.create({
       ...createTagDto,
     });
 
     const newTag = await this.tagRepository.save(tag);
-    return {
-      data: newTag,
-      success: true,
-      message: 'Tag created successfully',
-    };
+
+    return newTag;
   }
 
-  async updateTag(tagId: number, updateTagDto: updateTagDto) {
+  async updateTag(tagId: number, updateTagDto: updateTagDto): Promise<Tag> {
     const tag = await this.tagRepository.findOne({
       where: { id: tagId },
     });
@@ -76,14 +71,10 @@ export class TagService {
 
     const updatedTag = await this.tagRepository.save(tag);
 
-    return {
-      data: updatedTag,
-      success: true,
-      message: 'Tag updated successfully',
-    };
+    return updatedTag;
   }
 
-  async deleteTag(tagId: number) {
+  async deleteTag(tagId: number): Promise<boolean> {
     const tag = await this.tagRepository.findOne({
       where: { id: tagId },
     });
@@ -94,6 +85,6 @@ export class TagService {
 
     await this.tagRepository.delete({ id: tagId });
 
-    return { success: true, message: 'Tag deleted successfully' };
+    return true;
   }
 }

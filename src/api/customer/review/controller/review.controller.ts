@@ -13,7 +13,7 @@ import {
   UseGuards,
 } from '@nestjs/common';
 import { GetAllReviews } from '../dto/get-all-reviews.dto';
-import { ApiPagRes } from 'src/type/custom-response.type';
+import { ApiPagRes, ApiRes } from 'src/type/custom-response.type';
 import { SUCCESS } from 'src/contants/response.constant';
 import { CreateReview } from '../dto/create-review.dto';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
@@ -50,9 +50,15 @@ export class ReviewController {
     @Param('productId') productId: number,
     @Request() req, // lấy thông tin user từ token
   ) {
-    return this.reviewService.createReviewForProduct(data, productId, {
-      userId: req.user.userId,
-    });
+    const newReview = await this.reviewService.createReviewForProduct(
+      data,
+      productId,
+      {
+        userId: req.user.userId,
+      },
+    );
+
+    return new ApiRes(newReview, SUCCESS);
   }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
@@ -63,8 +69,14 @@ export class ReviewController {
     @Body() data: UpdateReview,
     @Request() req, // lấy thông tin user từ token
   ) {
-    return this.reviewService.updateReview(data, reviewId, {
-      userId: req.user.userId,
-    });
+    const updatedReview = await this.reviewService.updateReview(
+      data,
+      reviewId,
+      {
+        userId: req.user.userId,
+      },
+    );
+
+    return new ApiRes(updatedReview, SUCCESS);
   }
 }

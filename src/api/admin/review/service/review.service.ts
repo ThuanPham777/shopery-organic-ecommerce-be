@@ -1,13 +1,7 @@
-// src/review/review.service.ts
-import {
-  Injectable,
-  NotFoundException,
-  ForbiddenException,
-} from '@nestjs/common';
+import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { GetAllReviews } from 'src/api/customer/review/dto/get-all-reviews.dto';
 import { Review } from 'src/database/entities/review/review.entity';
-import { User } from 'src/database/entities/user/user.entity';
 import { EUserRole } from 'src/enums/user.enums';
 import { Repository } from 'typeorm';
 @Injectable()

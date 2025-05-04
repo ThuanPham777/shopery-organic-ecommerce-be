@@ -22,7 +22,11 @@ import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/api/auth/decorators/roles.decorator';
 import { GetAllCategories } from '../dto/get-all-categories.dto';
-import { ApiPagRes } from 'src/type/custom-response.type';
+import {
+  ApiNullableRes,
+  ApiPagRes,
+  ApiRes,
+} from 'src/type/custom-response.type';
 import { SUCCESS } from 'src/contants/response.constant';
 
 @ApiTags('Admin / Category')
@@ -50,7 +54,9 @@ export class CategoryController {
   @Get(':categoryId')
   @Roles('admin')
   async getCategoryById(@Param('categoryId') categoryId: number) {
-    return this.categoryService.getCategoryById(categoryId);
+    const category = await this.categoryService.getCategoryById(categoryId);
+
+    return new ApiRes(category, SUCCESS);
   }
 
   @Post('create')
@@ -61,7 +67,12 @@ export class CategoryController {
     @Body() createCategoryDto: createCategoryDto,
     @UploadedFile() image: Express.Multer.File,
   ) {
-    return this.categoryService.createCategory(createCategoryDto, image);
+    const newCategory = await this.categoryService.createCategory(
+      createCategoryDto,
+      image,
+    );
+
+    return new ApiRes(newCategory, SUCCESS);
   }
 
   @Patch(':categoryId/update')
@@ -73,16 +84,20 @@ export class CategoryController {
     @Body() updateCategoryDto: updateCategoryDto,
     @UploadedFile() image?: Express.Multer.File,
   ) {
-    return this.categoryService.updateCategory(
+    const updatedCategory = await this.categoryService.updateCategory(
       categoryId,
       updateCategoryDto,
       image,
     );
+
+    return new ApiRes(updatedCategory, SUCCESS);
   }
 
   @Delete(':categoryId/delete')
   @Roles('admin')
   async deleteCategory(@Param('categoryId') categoryId: number) {
-    return this.categoryService.deleteCategory(categoryId);
+    await this.categoryService.deleteCategory(categoryId);
+
+    return new ApiNullableRes(null, SUCCESS);
   }
 }

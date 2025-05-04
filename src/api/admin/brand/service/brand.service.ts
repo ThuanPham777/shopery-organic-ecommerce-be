@@ -4,7 +4,7 @@ import { Brand } from 'src/database/entities/brand/brand.entity';
 import { Repository } from 'typeorm';
 import { createBrandDto } from '../dto/create-brand.dto';
 import { updateBrandDto } from '../dto/update-brand.dto';
-import { GetAllBrands } from '../dto/get-all-brands.dto';
+import { GetAllBrandsDto } from '../dto/get-all-brands.dto';
 
 @Injectable()
 export class BrandService {
@@ -14,7 +14,7 @@ export class BrandService {
   ) {}
 
   async getAllBrands(
-    query: GetAllBrands,
+    query: GetAllBrandsDto,
   ): Promise<{ brands: Brand[]; total: number }> {
     const { page = 1, perPage = 10 } = query;
     const skip = (page - 1) * perPage;
@@ -34,7 +34,7 @@ export class BrandService {
     return { brands, total };
   }
 
-  async getBrandById(brandId: number) {
+  async getBrandById(brandId: number): Promise<Brand> {
     const brand = await this.brandRepository.findOne({
       where: { id: brandId },
     });
@@ -43,25 +43,23 @@ export class BrandService {
       throw new NotFoundException('Brand Not Found');
     }
 
-    return {
-      data: brand,
-    };
+    return brand;
   }
 
-  async createBrand(createBrandDto: createBrandDto) {
+  async createBrand(createBrandDto: createBrandDto): Promise<Brand> {
     const brand = this.brandRepository.create({
       ...createBrandDto,
     });
 
     const newBrand = await this.brandRepository.save(brand);
-    return {
-      data: newBrand,
-      success: true,
-      message: 'Brand created successfully',
-    };
+
+    return newBrand;
   }
 
-  async updateBrand(brandId: number, updateBrandDto: updateBrandDto) {
+  async updateBrand(
+    brandId: number,
+    updateBrandDto: updateBrandDto,
+  ): Promise<Brand> {
     const brand = await this.brandRepository.findOne({
       where: { id: brandId },
     });
@@ -74,11 +72,7 @@ export class BrandService {
 
     const updatedBrand = await this.brandRepository.save(brand);
 
-    return {
-      data: updatedBrand,
-      success: true,
-      message: 'Brand updated successfully',
-    };
+    return updatedBrand;
   }
 
   async deleteBrand(brandId: number) {
@@ -91,7 +85,5 @@ export class BrandService {
     }
 
     await this.brandRepository.delete({ id: brandId });
-
-    return { success: true, message: 'Brand deleted successfully' };
   }
 }

@@ -41,7 +41,7 @@ export class ReviewService {
     data: CreateReview,
     productId: number,
     jwtPayload: { userId: number },
-  ): Promise<{ data: Review; success: boolean; message: string }> {
+  ): Promise<Review> {
     const product = await this.productRepository.findOne({
       where: { id: productId },
     });
@@ -64,18 +64,14 @@ export class ReviewService {
 
     const newReview = await this.reviewRepository.save(review);
 
-    return {
-      data: newReview,
-      success: true,
-      message: 'Review created successfully',
-    };
+    return newReview;
   }
 
   async updateReview(
     data: UpdateReview,
     reviewId: number,
     jwtPayload: { userId: number },
-  ): Promise<{ data: Review; success: boolean; message: string }> {
+  ): Promise<Review> {
     const review = await this.reviewRepository.findOne({
       where: { id: reviewId },
       relations: ['user'],
@@ -97,12 +93,8 @@ export class ReviewService {
     }
     review.modified_at = new Date();
 
-    const updated = await this.reviewRepository.save(review);
+    const updatedReivew = await this.reviewRepository.save(review);
 
-    return {
-      data: updated,
-      success: true,
-      message: 'Review updated successfully',
-    };
+    return updatedReivew;
   }
 }

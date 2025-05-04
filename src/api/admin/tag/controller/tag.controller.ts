@@ -19,7 +19,11 @@ import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/api/auth/decorators/roles.decorator';
 import { GetAllTags } from '../dto/get-all-tags.dto';
-import { ApiPagRes } from 'src/type/custom-response.type';
+import {
+  ApiNullableRes,
+  ApiPagRes,
+  ApiRes,
+} from 'src/type/custom-response.type';
 import { SUCCESS } from 'src/contants/response.constant';
 
 @ApiTags('Admin / Tag')
@@ -42,14 +46,18 @@ export class TagController {
   @Get(':tagId')
   @Roles('admin')
   async getTagById(@Param('tagId') tagId: number) {
-    return this.tagService.getTagById(tagId);
+    const tag = await this.tagService.getTagById(tagId);
+
+    return new ApiRes(tag, SUCCESS);
   }
 
   @Post('create')
   @Roles('admin')
   @UsePipes(new ValidationPipe({ transform: true }))
   async createTag(@Body() createTagDto: createTagDto) {
-    return this.tagService.createTag(createTagDto);
+    const newTag = await this.tagService.createTag(createTagDto);
+
+    return new ApiRes(newTag, SUCCESS);
   }
 
   @Patch(':tagId/update')
@@ -59,12 +67,16 @@ export class TagController {
     @Param('tagId') tagId: number,
     @Body() updateTagDto: updateTagDto,
   ) {
-    return this.tagService.updateTag(tagId, updateTagDto);
+    const updatedTag = await this.tagService.updateTag(tagId, updateTagDto);
+
+    return new ApiRes(updatedTag, SUCCESS);
   }
 
   @Delete(':tagId/delete')
   @Roles('admin')
   async deleteTag(@Param('tagId') tagId: number) {
-    return this.tagService.deleteTag(tagId);
+    await this.tagService.deleteTag(tagId);
+
+    return new ApiNullableRes(null, SUCCESS);
   }
 }
