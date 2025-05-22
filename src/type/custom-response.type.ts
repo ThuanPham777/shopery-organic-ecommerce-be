@@ -14,7 +14,7 @@ export class ApiRes<T = any> {
     this.data = data;
     this.message = message;
   }
-  @ApiProperty({ type: Object })
+
   data: T;
 
   @ApiProperty({ type: String, nullable: true })

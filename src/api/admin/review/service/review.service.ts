@@ -1,15 +1,16 @@
 import { Injectable, ForbiddenException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { GetAllReviews } from 'src/api/customer/review/dto/get-all-reviews.dto';
+import { DEFAULT_PER_PAGE } from 'src/contants/common.constant';
 import { Review } from 'src/database/entities/review/review.entity';
 import { EUserRole } from 'src/enums/user.enums';
 import { Repository } from 'typeorm';
+import { GetAllReviewsOfSingleProductInDto } from '../dto/get-all-reviews-of-single-product.in.dto';
 @Injectable()
 export class ReviewService {
   constructor(
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
-  ) {}
+  ) { }
 
   async deleteReview(
     reviewId: number,
@@ -43,10 +44,10 @@ export class ReviewService {
   }
 
   async getAllReviewsOfSingleProduct(
-    query: GetAllReviews,
+    query: GetAllReviewsOfSingleProductInDto,
     productId: number,
   ): Promise<{ reviews: Review[]; total: number }> {
-    const { page = 1, perPage = 10 } = query;
+    const { page = 1, perPage = DEFAULT_PER_PAGE } = query;
     const skip = (page - 1) * perPage;
     const take = perPage;
     const [reviews, total] = await this.reviewRepository.findAndCount({

@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import * as bodyParser from 'body-parser';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import * as session from 'express-session';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { cors: true });
@@ -19,6 +20,17 @@ async function bootstrap() {
     allowedHeaders: 'Content-Type, Accept, Authorization',
   });
 
+
+  app.use(
+    session({
+      secret: process.env.SESSION_SECRET || 'your-secret-key',
+      resave: false,
+      saveUninitialized: false,
+      cookie: { secure: process.env.NODE_ENV === 'production' },
+    }),
+  );
+
+
   const config = new DocumentBuilder()
     .setTitle('My API Shopery organic')
     .setDescription('API Shopery organic')
@@ -28,7 +40,7 @@ async function bootstrap() {
         type: 'http',
         scheme: 'bearer',
         bearerFormat: 'JWT',
-        description: 'Nhập JWT token (chỉ token, không kèm “Bearer ”)',
+        description: 'Nhập JWT token (chỉ token, không kèm "Bearer ")',
       },
       'bearerAuth', // security name, phải trùng với @ApiBearerAuth() nếu bạn dùng decorator
     )

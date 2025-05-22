@@ -1,5 +1,5 @@
 import { ReviewService } from '../service/review.service';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import {
   Body,
   Controller,
@@ -11,26 +11,33 @@ import {
   Query,
   Request,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
-import { GetAllReviews } from '../dto/get-all-reviews.dto';
 import { ApiPagRes, ApiRes } from 'src/type/custom-response.type';
 import { SUCCESS } from 'src/contants/response.constant';
-import { CreateReview } from '../dto/create-review.dto';
+import { CreateReviewInDto } from '../dto/create-review.in.dto';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/api/auth/decorators/roles.decorator';
 import { EUserRole } from 'src/enums/user.enums';
-import { UpdateReview } from '../dto/update-review.dto';
+import { UpdateReviewInDto } from '../dto/update-review.in.dto';
+import { GetAllReviewsOfSingleProductInDto } from '../dto/get-all-reviews-of-single-product.in.dto';
+import { GetAllReviewsOfSingleProductOutRes } from '../dto/get-all-reviews-of-single-product.out.dto';
+import { CreateReviewOutRes } from '../dto/create-review.out.dto';
+import { UpdateReviewOutRes } from '../dto/update-review.out.dto';
 
 @ApiTags('review')
 @Controller('review')
 @ApiBearerAuth('bearerAuth')
 export class ReviewController {
-  constructor(private readonly reviewService: ReviewService) {}
+  constructor(private readonly reviewService: ReviewService) { }
 
   @Get(':productId')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @ApiOkResponse({ type: GetAllReviewsOfSingleProductOutRes })
   async getAllReviewsOfSingleProduct(
-    @Query() query: GetAllReviews,
+    @Query() query: GetAllReviewsOfSingleProductInDto,
     @Param('productId') productId: number,
   ) {
     const { page, perPage } = query;
@@ -44,9 +51,11 @@ export class ReviewController {
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(EUserRole.USER)
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @ApiOkResponse({ type: CreateReviewOutRes })
   @Post('create/:productId')
   async createReviewForProduct(
-    @Body() data: CreateReview,
+    @Body() data: CreateReviewInDto,
     @Param('productId') productId: number,
     @Request() req, // lấy thông tin user từ token
   ) {
@@ -63,10 +72,12 @@ export class ReviewController {
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(EUserRole.USER)
-  @Patch(':reviewId/update')
+  @Patch(':reviewId')
+  @UsePipes(new ValidationPipe({ transform: true }))
+  @ApiOkResponse({ type: UpdateReviewOutRes })
   async updateReview(
     @Param('reviewId', ParseIntPipe) reviewId: number,
-    @Body() data: UpdateReview,
+    @Body() data: UpdateReviewInDto,
     @Request() req, // lấy thông tin user từ token
   ) {
     const updatedReview = await this.reviewService.updateReview(

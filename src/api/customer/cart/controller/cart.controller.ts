@@ -7,70 +7,100 @@ import {
   Param,
   Body,
   Query,
-  UseGuards,
+  Req,
+  UnauthorizedException,
 } from '@nestjs/common';
+import { Request } from 'express';
 import { CartService } from '../service/cart.service';
-import { CartItemDto } from '../dto/cart-item.dto';
+import { AddCartItemInDto } from '../dto/add-cart-item.in.dto';
 import { ApiTags } from '@nestjs/swagger';
-import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
-import { RoleGuard } from 'src/guards/role.guard';
+import { ApiNullableRes, ApiRes } from 'src/type/custom-response.type';
+import { UpdateCartItemInDto } from '../dto/update-cart-item.in.dto';
+
+// Define custom session type
+type SessionWithUser = {
+  userId?: number;
+  id: string;
+};
 
 @ApiTags('cart')
 @Controller('cart')
 export class CartController {
-  constructor(private readonly cartService: CartService) {}
+  constructor(private readonly cartService: CartService) { }
 
   @Get()
   async getCart(
-    @Query('userId') userId?: number,
-    @Query('sessionId') sessionId?: string,
+    @Req() req: Request & { session: SessionWithUser },
   ) {
-    return this.cartService.getCart(userId, sessionId);
+    const userId = req.session.userId;
+    const sessionId = userId ? undefined : req.session.id;
+    const cart = await this.cartService.getCart(userId, sessionId);
+    return new ApiRes(cart, 'Get cart successfully');
   }
 
-  @Post('add')
+  @Post()
   async addToCart(
-    @Body() cartItemDto: CartItemDto,
-    @Query('userId') userId?: string,
-    @Query('sessionId') sessionId?: string,
+    @Body() addCartItemDto: AddCartItemInDto,
+    @Req() req: Request & { session: SessionWithUser },
   ) {
-    return this.cartService.addToCart(
-      userId ? Number(userId) : null,
-      sessionId || null,
-      cartItemDto,
+    const userId = req.session.userId;
+    const sessionId = userId ? undefined : req.session.id;
+    const result = await this.cartService.addToCart(
+      userId ?? null,
+      sessionId ?? null,
+      addCartItemDto
     );
+    return new ApiRes(result, 'Item added to cart');
   }
 
-  @Patch('update/:cartItemId')
+  @Patch(':cartItemId')
   async updateCartItem(
     @Param('cartItemId') cartItemId: number,
-    @Body('quantity') quantity: number,
-    @Query('sessionId') sessionId: string,
+    @Body() updateCartItemDto: UpdateCartItemInDto,
+    @Req() req: Request & { session: SessionWithUser },
   ) {
-    return this.cartService.updateCartItem(cartItemId, quantity, sessionId);
+    const userId = req.session.userId;
+    const sessionId = userId ? undefined : req.session.id;
+    const result = await this.cartService.updateCartItem(
+      cartItemId,
+      updateCartItemDto,
+      sessionId
+    );
+    return new ApiRes(result, 'Cart item updated');
   }
 
-  @Delete('remove/:cartItemId')
+  @Delete(':cartItemId')
   async removeCartItem(
     @Param('cartItemId') cartItemId: number,
-    @Query('sessionId') sessionId: string,
+    @Req() req: Request & { session: SessionWithUser },
   ) {
-    return this.cartService.removeCartItem(cartItemId, sessionId);
+    const userId = req.session.userId;
+    const sessionId = userId ? undefined : req.session.id;
+    const result = await this.cartService.removeCartItem(
+      cartItemId,
+      sessionId
+    );
+    return new ApiRes(result, 'Item removed from cart');
   }
 
   @Delete('clear')
   async clearCart(
-    @Query('userId') userId: number,
-    @Query('sessionId') sessionId: string,
+    @Req() req: Request & { session: SessionWithUser },
   ) {
-    return this.cartService.clearCart(userId, sessionId);
+    const userId = req.session.userId;
+    const sessionId = userId ? undefined : req.session.id;
+    const result = await this.cartService.clearCart(userId, sessionId);
+    return new ApiRes(result, 'Cart cleared successfully');
   }
 
   @Post('merge')
   async mergeCart(
-    @Query('userId') userId: number,
-    @Query('sessionId') sessionId: string,
+    @Req() req: Request & { session: SessionWithUser },
   ) {
-    return this.cartService.mergeCart(userId, sessionId);
+    const userId = req.session.userId;
+    if (!userId) throw new UnauthorizedException('User must be logged in');
+    const sessionId = req.session.id;
+    await this.cartService.mergeCart(userId, sessionId);
+    return new ApiNullableRes(null, 'Cart merged successfully');
   }
 }

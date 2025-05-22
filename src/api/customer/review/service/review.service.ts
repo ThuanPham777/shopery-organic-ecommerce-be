@@ -1,12 +1,13 @@
 import { Review } from 'src/database/entities/review/review.entity';
 import { Repository } from 'typeorm';
-import { GetAllReviews } from '../dto/get-all-reviews.dto';
-import { CreateReview } from '../dto/create-review.dto';
+import { GetAllReviewsOfSingleProductInDto } from '../dto/get-all-reviews-of-single-product.in.dto';
+import { CreateReviewInDto } from '../dto/create-review.in.dto';
 import { User } from 'src/database/entities/user/user.entity';
 import { ForbiddenException, Logger, NotFoundException } from '@nestjs/common';
 import { Product } from 'src/database/entities/product/product.entity';
-import { UpdateReview } from '../dto/update-review.dto';
+import { UpdateReviewInDto } from '../dto/update-review.in.dto';
 import { InjectRepository } from '@nestjs/typeorm';
+import { DEFAULT_PER_PAGE } from 'src/contants/common.constant';
 export class ReviewService {
   constructor(
     @InjectRepository(Review)
@@ -15,13 +16,13 @@ export class ReviewService {
     private productRepository: Repository<Product>,
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
-  ) {}
+  ) { }
 
   async getAllReviewsOfSingleProduct(
-    query: GetAllReviews,
+    query: GetAllReviewsOfSingleProductInDto,
     productId: number,
   ): Promise<{ reviews: Review[]; total: number }> {
-    const { page = 1, perPage = 10 } = query;
+    const { page = 1, perPage = DEFAULT_PER_PAGE } = query;
     const skip = (page - 1) * perPage;
     const take = perPage;
     const [reviews, total] = await this.reviewRepository.findAndCount({
@@ -38,7 +39,7 @@ export class ReviewService {
   }
 
   async createReviewForProduct(
-    data: CreateReview,
+    data: CreateReviewInDto,
     productId: number,
     jwtPayload: { userId: number },
   ): Promise<Review> {
@@ -68,7 +69,7 @@ export class ReviewService {
   }
 
   async updateReview(
-    data: UpdateReview,
+    data: UpdateReviewInDto,
     reviewId: number,
     jwtPayload: { userId: number },
   ): Promise<Review> {

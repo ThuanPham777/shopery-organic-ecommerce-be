@@ -1,6 +1,6 @@
 // src/user/dto/create-user.dto.ts
 import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, Matches, MinLength } from 'class-validator';
+import { IsString, IsNotEmpty, Matches, MinLength, IsEmail } from 'class-validator';
 
 export class SignupDto {
   @ApiProperty({
@@ -14,6 +14,14 @@ export class SignupDto {
       'Tên người dùng phải có ít nhất một chữ cái và không được chứa khoảng trắng',
   })
   username: string;
+
+  @ApiProperty({
+    example: 'user@example.com',
+    description: 'Email address'
+  })
+  @IsEmail()
+  @IsNotEmpty()
+  email: string;
 
   @ApiProperty({
     example: '123456789',

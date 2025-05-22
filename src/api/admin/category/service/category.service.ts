@@ -1,33 +1,29 @@
-import { updateCategoryDto } from '../dto/update-category.dto';
-import { createCategoryDto } from '../dto/create-category.dto';
+import { UpdateCategoryInDto } from '../dto/update-category.in.dto';
+import { CreateCategoryInDto } from '../dto/create-category.in.dto';
 import {
   BadRequestException,
   Injectable,
-  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Category } from 'src/database/entities/category/category.entity';
 import { Repository } from 'typeorm';
-import {
-  deleteFromCloudinary,
-  extractPublicId,
-  uploadToCloudinary,
-} from 'src/common/helper/cloudinary.helper';
-import { GetAllCategories } from '../dto/get-all-categories.dto';
-
+import { GetAllCategoriesInDto } from '../dto/get-all-categories.in.dto';
+import { DEFAULT_PER_PAGE } from 'src/contants/common.constant';
+import { UploadService } from 'src/common/helper/upload/upload.service';
 @Injectable()
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
-  ) {}
+    private readonly uploadService: UploadService,
+  ) { }
   static folder = 'shopery-organic/category';
 
   async getAllCategories(
-    query: GetAllCategories,
+    query: GetAllCategoriesInDto,
   ): Promise<{ categories: Category[]; total: number }> {
-    const { page = 1, perPage = 10 } = query;
+    const { page = 1, perPage = DEFAULT_PER_PAGE } = query;
     const skip = (page - 1) * perPage;
     const take = perPage;
     const [categories, total] = await this.categoryRepository.findAndCount({
@@ -62,19 +58,8 @@ export class CategoryService {
   }
 
   async createCategory(
-    createCategoryDto: createCategoryDto,
-    image: Express.Multer.File,
+    createCategoryDto: CreateCategoryInDto,
   ): Promise<Category> {
-    if (!image) {
-      throw new BadRequestException('image file is required');
-    }
-
-    // Upload image lên Cloudinary
-    const uploadResult: any = await uploadToCloudinary(
-      image,
-      CategoryService.folder,
-    );
-    createCategoryDto.image = uploadResult.secure_url;
 
     const category = this.categoryRepository.create({
       ...createCategoryDto,
@@ -86,8 +71,7 @@ export class CategoryService {
 
   async updateCategory(
     categoryId: number,
-    updateCategoryDto: updateCategoryDto,
-    image?: Express.Multer.File,
+    updateCategoryDto: UpdateCategoryInDto,
   ): Promise<Category> {
     const category = await this.categoryRepository.findOne({
       where: { id: categoryId },
@@ -95,23 +79,6 @@ export class CategoryService {
 
     if (!category) {
       throw new NotFoundException('Category not found');
-    }
-
-    if (image) {
-      try {
-        if (category.image) {
-          const publicId = extractPublicId(category.image);
-          await deleteFromCloudinary(publicId);
-        }
-
-        const uploadResult = await uploadToCloudinary(
-          image,
-          CategoryService.folder,
-        );
-        category.image = uploadResult.secure_url;
-      } catch (error) {
-        throw new InternalServerErrorException('Image upload failed');
-      }
     }
 
     Object.assign(category, updateCategoryDto);
@@ -130,15 +97,17 @@ export class CategoryService {
       throw new NotFoundException('Product not found');
     }
 
-    // Nếu sản phẩm có ảnh image, xóa trên Cloudinary trước
-    if (category.image) {
-      const publicId = extractPublicId(category.image);
-      await deleteFromCloudinary(publicId);
-    }
-
     // Xóa sản phẩm khỏi database
     await this.categoryRepository.delete({ id: categoryId });
 
     return true;
+  }
+
+  async uploadCategoryImage(image: Express.Multer.File): Promise<string> {
+    const uploadResult = await this.uploadService.uploadToCloudinary(
+      image,
+      CategoryService.folder,
+    );
+    return uploadResult.secure_url;
   }
 }

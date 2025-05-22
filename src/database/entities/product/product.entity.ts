@@ -1,13 +1,11 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   OneToMany,
   JoinColumn,
   ManyToMany,
   JoinTable,
-  DeleteDateColumn,
 } from 'typeorm';
 import { Category } from '../category/category.entity';
 import { Brand } from '../brand/brand.entity';
@@ -15,6 +13,7 @@ import { Manufacturer } from '../manufacturer/manufacturer.entity';
 import { Tag } from '../tag/tag.entity';
 import { ProductImages } from '../product/product-image.entity';
 import { Review } from '../review/review.entity';
+import { BaseEntity } from '../base.entity';
 
 export enum ProductStatus {
   IN_STOCK = 'In stock',
@@ -23,10 +22,7 @@ export enum ProductStatus {
 }
 
 @Entity({ name: 'Product' })
-export class Product {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Product extends BaseEntity {
   @Column({ length: 255 })
   name: string;
 
@@ -59,15 +55,6 @@ export class Product {
 
   @Column({ type: 'float', nullable: true })
   discount: number;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
-  modified_at: Date;
-
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at: Date;
 
   // Quan hệ
   @ManyToOne(() => Category, (category) => category.products)

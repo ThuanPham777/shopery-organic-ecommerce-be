@@ -1,12 +1,11 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   JoinColumn,
-  DeleteDateColumn,
 } from 'typeorm';
 import { User } from '../user/user.entity';
+import { BaseEntity } from '../base.entity';
 
 export enum PaymentMethod {
   COD = 'Cash on Delivery',
@@ -21,10 +20,7 @@ export enum PaymentStatus {
 }
 
 @Entity({ name: 'Payment' })
-export class Payment {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Payment extends BaseEntity {
   @Column({ type: 'decimal', precision: 18, scale: 2, nullable: true })
   total: number;
 
@@ -39,12 +35,6 @@ export class Payment {
 
   @Column({ type: 'enum', enum: PaymentStatus })
   status: PaymentStatus;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
-
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at: Date;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })

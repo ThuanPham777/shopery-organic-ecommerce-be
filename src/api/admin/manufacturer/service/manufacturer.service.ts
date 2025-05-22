@@ -2,21 +2,22 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Manufacturer } from 'src/database/entities/manufacturer/manufacturer.entity';
 import { Repository } from 'typeorm';
-import { createManufacturerDto } from '../dto/create-manufacturer.dto';
-import { updateManufacturerDto } from '../dto/update-manufacturer.dto';
-import { GetAllManufacturers } from '../dto/get-all-manufacturers.dto';
+import { CreateManufacturerInDto } from '../dto/create-manufacturer.in.dto';
+import { UpdateManufacturerInDto } from '../dto/update-manufacturer.in.dto';
+import { GetAllManufacturersInDto } from '../dto/get-all-manufacturers.in.dto';
+import { DEFAULT_PER_PAGE } from 'src/contants/common.constant';
 
 @Injectable()
 export class ManufacturerService {
   constructor(
     @InjectRepository(Manufacturer)
     private manufacturerRepository: Repository<Manufacturer>,
-  ) {}
+  ) { }
 
   async getAllManufacturers(
-    query: GetAllManufacturers,
+    query: GetAllManufacturersInDto,
   ): Promise<{ manufacturers: Manufacturer[]; total: number }> {
-    const { page = 1, perPage = 10 } = query;
+    const { page = 1, perPage = DEFAULT_PER_PAGE } = query;
     const skip = (page - 1) * perPage;
     const take = perPage;
     const [manufacturers, total] =
@@ -51,7 +52,7 @@ export class ManufacturerService {
   }
 
   async createManufacturer(
-    createManufacturerDto: createManufacturerDto,
+    createManufacturerDto: CreateManufacturerInDto,
   ): Promise<Manufacturer> {
     const manufacturer = this.manufacturerRepository.create({
       ...createManufacturerDto,
@@ -64,7 +65,7 @@ export class ManufacturerService {
 
   async updateManufacturer(
     manufacturerId: number,
-    updateManufacturerDto: updateManufacturerDto,
+    updateManufacturerDto: UpdateManufacturerInDto,
   ): Promise<Manufacturer> {
     const manufacturer = await this.manufacturerRepository.findOne({
       where: { id: manufacturerId },

@@ -1,18 +1,10 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  DeleteDateColumn,
-} from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { Cart } from '../cart/cart.entity';
 import { Review } from '../review/review.entity';
 import { EUserRole, EUserStatus } from 'src/enums/user.enums';
+import { BaseEntity } from '../base.entity';
 @Entity({ name: 'User' })
-export class User {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class User extends BaseEntity {
   @Column({ length: 255, unique: true })
   username: string;
 
@@ -32,7 +24,7 @@ export class User {
   @Column({ length: 255, nullable: true })
   last_name: string;
 
-  @Column({ length: 255, nullable: true })
+  @Column({ length: 255, unique: true, nullable: true })
   email: string;
 
   @Column({ length: 255, nullable: true })
@@ -59,15 +51,6 @@ export class User {
     default: EUserStatus.ACTIVE,
   })
   status: EUserStatus;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
-  modified_at: Date;
-
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at: Date;
 
   @OneToMany(() => Cart, (cart) => cart.user)
   carts: Cart[];

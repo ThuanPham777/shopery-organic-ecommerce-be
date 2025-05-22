@@ -8,18 +8,14 @@ export class CategoryService {
   constructor(
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
-  ) {}
-  static folder = 'shopery-organic/category';
+  ) { }
 
-  async getAllCategories() {
+  async getAllCategories(): Promise<Category[]> {
     const categories = await this.categoryRepository.find();
 
     if (!categories) {
-      // throw error
       throw new NotFoundException('Category Not Found');
     }
-    return {
-      data: categories,
-    };
+    return categories;
   }
 }

@@ -1,24 +1,21 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsEmail, IsString, Matches, MinLength } from 'class-validator';
+import { IsNotEmpty, IsString, MinLength } from 'class-validator';
 
 export class LoginDto {
   @ApiProperty({
-    example: 'user123',
-    description: 'Tên người dùng (bắt buộc có chữ, không chứa khoảng trắng)',
+    example: 'user123 or user@example.com',
+    description: 'Username or Email'
   })
-  @IsString({ message: 'Tên người dùng phải là chuỗi' })
-  @Matches(/^(?=.*[a-zA-Z])[^\s]+$/, {
-    message:
-      'Tên người dùng phải có ít nhất một chữ cái và không được chứa khoảng trắng',
-  })
+  @IsString()
+  @IsNotEmpty()
   username: string;
 
   @ApiProperty({
     example: '123456789',
-    description: 'Mật khẩu của người dùng',
+    description: 'Password',
     minLength: 8,
   })
   @IsString()
-  @MinLength(8, { message: 'Mật khẩu phải có ít nhất 8 ký tự' })
+  @MinLength(8)
   password: string;
 }

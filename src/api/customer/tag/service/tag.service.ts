@@ -8,16 +8,14 @@ export class TagService {
   constructor(
     @InjectRepository(Tag)
     private tagRepository: Repository<Tag>,
-  ) {}
+  ) { }
 
-  async getAllTags() {
+  async getAllTags(): Promise<Tag[]> {
     const tags = await this.tagRepository.find();
 
     if (!tags) {
       throw new NotFoundException('Tag Not Found');
     }
-    return {
-      data: tags,
-    };
+    return tags;
   }
 }

@@ -1,9 +1,5 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  DeleteDateColumn,
-} from 'typeorm';
+import { Entity, Column } from 'typeorm';
+import { BaseEntity } from '../base.entity';
 
 export enum AddressType {
   BILLING = 'billing',
@@ -11,10 +7,7 @@ export enum AddressType {
 }
 
 @Entity({ name: 'Address' })
-export class Address {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Address extends BaseEntity {
   @Column({ length: 255, nullable: true })
   address: string;
 
@@ -29,13 +22,4 @@ export class Address {
 
   @Column({ type: 'enum', enum: AddressType })
   address_type: AddressType;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
-  modified_at: Date;
-
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at: Date;
 }

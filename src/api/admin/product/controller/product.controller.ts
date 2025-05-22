@@ -4,7 +4,6 @@ import {
   Controller,
   Delete,
   Get,
-  Logger,
   Param,
   Patch,
   Post,
@@ -17,114 +16,130 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { ProductService } from '../service/product.service';
-import { CreateProductDto } from '../dto/create-product.dto';
-import { UpdateProductDto } from '../dto/update-product.dto';
+import { CreateProductInDto } from '../dto/create-product.in.dto';
+import { UpdateProductInDto } from '../dto/update-product.in.dto';
 import { FileInterceptor, FilesInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiConsumes, ApiTags, ApiBody, ApiQuery, ApiOkResponse } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/api/auth/decorators/roles.decorator';
-import { GetAllProducts } from '../dto/get-all-products.dto';
-import { ApiPagRes, ApiRes } from 'src/type/custom-response.type';
+import { GetAllProductsInDto } from '../dto/get-all-products.in.dto';
+import { ApiNullableRes, ApiPagRes, ApiRes } from 'src/type/custom-response.type';
 import { SUCCESS } from 'src/contants/response.constant';
+import { GetAllProductsOutRes } from '../dto/get-all-products.out.dto';
+import { CreateProductOutRes } from '../dto/create-product.out.dto';
+import { UpdateProductOutRes } from '../dto/update-product.out.dto';
+import { EUserRole } from 'src/enums/user.enums';
 
 @ApiTags('Admin / Product')
 @Controller('admin/product')
 @ApiBearerAuth('bearerAuth')
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class ProductController {
-  constructor(private readonly productService: ProductService) {}
+  constructor(private readonly productService: ProductService) { }
 
   @Get()
-  @Roles('admin')
+  @Roles(EUserRole.ADMIN)
+  @ApiOkResponse({ type: GetAllProductsOutRes })
   @UsePipes(new ValidationPipe({ transform: true }))
-  async getProducts(@Query() query: GetAllProducts) {
+  async getAllProducts(@Query() query: GetAllProductsInDto) {
     const { page, perPage } = query;
-    const result = await this.productService.getProducts(query);
+    const result = await this.productService.getAllProducts(query);
 
     return new ApiPagRes(result.products, result.total, page, perPage, SUCCESS);
   }
 
   @Get(':productId')
-  @Roles('admin')
+  @Roles(EUserRole.ADMIN)
   async getProductById(@Param('productId') productId: number) {
     const product = await this.productService.getProductById(productId);
 
     return new ApiRes(product, SUCCESS);
   }
 
-  @Post('create')
-  @Roles('admin')
-  @UseInterceptors(FileInterceptor('thumbnail'))
+  @Post()
+  @Roles(EUserRole.ADMIN)
+  @ApiOkResponse({ type: CreateProductOutRes })
   async createProduct(
-    @Body() createProductDto: CreateProductDto,
-    @UploadedFile() thumbnail: Express.Multer.File,
+    @Body() createProductDto: CreateProductInDto,
   ) {
-    return this.productService.createProduct(createProductDto, thumbnail);
+    const newProduct = await this.productService.createProduct(
+      createProductDto,
+    );
+
+    return new ApiRes(newProduct, SUCCESS);
   }
-  @Patch(':productId/update')
-  @Roles('admin')
-  @UseInterceptors(FileInterceptor('thumbnail'))
+
+
+  @Patch(':productId')
+  @Roles(EUserRole.ADMIN)
+  @ApiOkResponse({ type: UpdateProductOutRes })
   async updateProduct(
     @Param('productId') productId: number,
-    @Body() updateProductDto: UpdateProductDto,
-    @UploadedFile() thumbnail?: Express.Multer.File,
+    @Body() updateProductDto: UpdateProductInDto,
   ) {
-    return this.productService.updateProduct(
+    const updatedProduct = await this.productService.updateProduct(
       productId,
       updateProductDto,
-      thumbnail,
     );
+
+    return new ApiRes(updatedProduct, SUCCESS);
   }
 
-  @Delete(':productId/delete')
-  @Roles('admin')
+  @Delete(':productId')
+  @Roles(EUserRole.ADMIN)
+  @ApiOkResponse({ type: ApiNullableRes })
   async deleteProductById(@Param('productId') productId: number) {
-    return this.productService.deleteProductById(productId);
+    await this.productService.deleteProductById(productId);
+
+    return new ApiNullableRes(null, SUCCESS);
   }
 
-  // Handle with product Images
-  @Get(':productId/Images')
-  @Roles('admin')
-  async getProductImages(@Param('productId') productId: number) {
-    return this.productService.getProductImages(productId);
+
+  @Post('upload/single')
+  @Roles(EUserRole.ADMIN)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadProductImage(
+    @UploadedFile() image: Express.Multer.File,
+  ) {
+    const uploadedImage = await this.productService.uploadProductImage(image);
+    return new ApiRes(uploadedImage, SUCCESS);
   }
 
-  @Post(':productId/images/add')
-  @Roles('admin')
-  @UseInterceptors(FilesInterceptor('images', 10))
+  @Post('upload/multiple')
+  @Roles(EUserRole.ADMIN)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        images: {
+          type: 'array',
+          items: {
+            type: 'string',
+            format: 'binary',
+          },
+        },
+      },
+    },
+  })
+  @UseInterceptors(FilesInterceptor('images'))
   async uploadProductImages(
-    @Param('productId') productId: number,
     @UploadedFiles() images: Express.Multer.File[],
   ) {
-    return this.productService.uploadProductImages(productId, images);
-  }
-
-  @Patch(':productId/images/:imageId/update')
-  @Roles('admin')
-  @UseInterceptors(FileInterceptor('newImage'))
-  async updateProductImage(
-    @Param('productId') productId: number,
-    @Param('imageId') imageId: number,
-    @UploadedFile() newImage: Express.Multer.File,
-  ) {
-    return this.productService.updateProductImage(productId, imageId, newImage);
-  }
-
-  // delete a single product image
-  @Delete(':productId/images/:imageId/delete')
-  @Roles('admin')
-  async deleteProductImage(
-    @Param('productId') productId: number,
-    @Param('imageId') imageId: number,
-  ) {
-    return this.productService.deleteProductImage(productId, imageId);
-  }
-
-  // delete all images
-  @Delete(':productId/images/delete')
-  @Roles('admin')
-  async deleteAllProductImages(@Param('productId') productId: number) {
-    return this.productService.deleteAllProductImages(productId);
+    const uploadedImages = await this.productService.uploadProductImages(images);
+    return new ApiRes(uploadedImages, SUCCESS);
   }
 }

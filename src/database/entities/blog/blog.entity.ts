@@ -1,24 +1,20 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   OneToMany,
   JoinColumn,
   ManyToMany,
   JoinTable,
-  DeleteDateColumn,
 } from 'typeorm';
 import { BlogCategory } from '../../entities/blog/blog-category.entity';
 import { User } from '../user/user.entity';
 import { BlogComment } from './blog-comment.entity';
 import { BlogTag } from './blog-tags.entity';
+import { BaseEntity } from '../base.entity';
 
 @Entity({ name: 'Blog' })
-export class Blog {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Blog extends BaseEntity {
   @Column({ length: 255 })
   title: string;
 
@@ -30,15 +26,6 @@ export class Blog {
 
   @Column({ length: 255, nullable: true })
   thumbnail: string;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
-  modified_at: Date;
-
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at: Date;
 
   @ManyToOne(() => BlogCategory)
   @JoinColumn({ name: 'category_id' })

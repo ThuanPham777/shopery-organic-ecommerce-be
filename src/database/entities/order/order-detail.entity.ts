@@ -1,17 +1,16 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
   ManyToOne,
   OneToMany,
   JoinColumn,
-  DeleteDateColumn,
 } from 'typeorm';
 import { User } from '../user/user.entity';
 import { Payment } from '../payment/payment.entity';
 import { Coupon } from '../coupon/coupon.entity';
 import { OrderItem } from '../order/order-item.entity';
 import { Address } from '../address/address.entity';
+import { BaseEntity } from '../base.entity';
 
 export enum OrderStatus {
   PENDING = 'Pending',
@@ -21,10 +20,7 @@ export enum OrderStatus {
 }
 
 @Entity({ name: 'OrderDetail' })
-export class OrderDetail {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class OrderDetail extends BaseEntity {
   @Column({ type: 'decimal', precision: 18, scale: 2 })
   total: number;
 
@@ -33,15 +29,6 @@ export class OrderDetail {
 
   @Column({ type: 'decimal', precision: 18, scale: 2, nullable: true })
   shipping_fee: number;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
-  modified_at: Date;
-
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at: Date;
 
   @ManyToOne(() => User)
   @JoinColumn({ name: 'user_id' })

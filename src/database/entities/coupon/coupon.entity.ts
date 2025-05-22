@@ -1,9 +1,8 @@
 import {
   Entity,
-  PrimaryGeneratedColumn,
   Column,
-  DeleteDateColumn,
 } from 'typeorm';
+import { BaseEntity } from '../base.entity';
 
 export enum CouponType {
   PERCENTAGE = 'percentage',
@@ -17,10 +16,7 @@ export enum CouponStatus {
 }
 
 @Entity({ name: 'Coupon' })
-export class Coupon {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Coupon extends BaseEntity {
   @Column({ length: 255, unique: true })
   coupon_code: string;
 
@@ -50,13 +46,4 @@ export class Coupon {
 
   @Column({ type: 'enum', enum: CouponStatus })
   coupon_status: CouponStatus;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
-  modified_at: Date;
-
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at: Date;
 }

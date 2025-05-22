@@ -1,17 +1,9 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  OneToMany,
-  DeleteDateColumn,
-} from 'typeorm';
+import { Entity, Column, OneToMany } from 'typeorm';
 import { Blog } from './blog.entity';
+import { BaseEntity } from '../base.entity';
 
 @Entity({ name: 'BlogCategory' })
-export class BlogCategory {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class BlogCategory extends BaseEntity {
   @Column({ length: 255 })
   name: string;
 
@@ -20,15 +12,6 @@ export class BlogCategory {
 
   @Column({ length: 255 })
   slug: string;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
-  modified_at: Date;
-
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at: Date;
 
   @OneToMany(() => Blog, (blog) => blog.category)
   blogs: Blog[];

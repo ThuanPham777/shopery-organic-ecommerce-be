@@ -1,30 +1,12 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  DeleteDateColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { Blog } from './blog.entity';
 import { User } from '../user/user.entity';
+import { BaseEntity } from '../base.entity';
 
 @Entity({ name: 'BlogComment' })
-export class BlogComment {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class BlogComment extends BaseEntity {
   @Column({ type: 'text' })
   content: string;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
-  modified_at: Date;
-
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at: Date;
 
   @ManyToOne(() => Blog, (blog) => blog.comments)
   @JoinColumn({ name: 'blog_id' })

@@ -14,31 +14,35 @@ import {
   ValidationPipe,
 } from '@nestjs/common';
 import { CategoryService } from '../service/category.service';
-import { createCategoryDto } from '../dto/create-category.dto';
-import { updateCategoryDto } from '../dto/update-category.dto';
+import { CreateCategoryInDto } from '../dto/create-category.in.dto';
+import { UpdateCategoryInDto } from '../dto/update-category.in.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/api/auth/decorators/roles.decorator';
-import { GetAllCategories } from '../dto/get-all-categories.dto';
+import { GetAllCategoriesInDto } from '../dto/get-all-categories.in.dto';
 import {
   ApiNullableRes,
   ApiPagRes,
   ApiRes,
 } from 'src/type/custom-response.type';
 import { SUCCESS } from 'src/contants/response.constant';
+import { GetAllCategoriesOutRes } from '../dto/get-all-categories.out.dto';
+import { CreateCategoryOutRes } from '../dto/create-category.out.dto';
+import { EUserRole } from 'src/enums/user.enums';
 
 @ApiTags('Admin / Category')
 @Controller('admin/category')
 @ApiBearerAuth('bearerAuth')
 @UseGuards(JwtAuthGuard, RoleGuard)
 export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) {}
+  constructor(private readonly categoryService: CategoryService) { }
 
   @Get()
-  @Roles('admin')
-  async getAllCategories(@Query() query: GetAllCategories) {
+  @Roles(EUserRole.ADMIN)
+  @ApiOkResponse({ type: GetAllCategoriesOutRes })
+  async getAllCategories(@Query() query: GetAllCategoriesInDto) {
     const { page, perPage } = query;
     const result = await this.categoryService.getAllCategories(query);
 
@@ -52,52 +56,69 @@ export class CategoryController {
   }
 
   @Get(':categoryId')
-  @Roles('admin')
+  @Roles(EUserRole.ADMIN)
   async getCategoryById(@Param('categoryId') categoryId: number) {
     const category = await this.categoryService.getCategoryById(categoryId);
 
     return new ApiRes(category, SUCCESS);
   }
 
-  @Post('create')
+  @Post()
   @UsePipes(new ValidationPipe())
-  @UseInterceptors(FileInterceptor('image'))
-  @Roles('admin')
+  @Roles(EUserRole.ADMIN)
+  @ApiOkResponse({ type: CreateCategoryOutRes })
   async createCategory(
-    @Body() createCategoryDto: createCategoryDto,
-    @UploadedFile() image: Express.Multer.File,
+    @Body() createCategoryDto: CreateCategoryInDto,
   ) {
     const newCategory = await this.categoryService.createCategory(
       createCategoryDto,
-      image,
     );
 
     return new ApiRes(newCategory, SUCCESS);
   }
 
-  @Patch(':categoryId/update')
+  @Patch(':categoryId')
   @UsePipes(new ValidationPipe())
-  @UseInterceptors(FileInterceptor('image'))
-  @Roles('admin')
+  @Roles(EUserRole.ADMIN)
   async updateCategory(
     @Param('categoryId') categoryId: number,
-    @Body() updateCategoryDto: updateCategoryDto,
-    @UploadedFile() image?: Express.Multer.File,
+    @Body() updateCategoryDto: UpdateCategoryInDto,
   ) {
     const updatedCategory = await this.categoryService.updateCategory(
       categoryId,
       updateCategoryDto,
-      image,
     );
 
     return new ApiRes(updatedCategory, SUCCESS);
   }
 
-  @Delete(':categoryId/delete')
-  @Roles('admin')
+  @Delete(':categoryId')
+  @Roles(EUserRole.ADMIN)
+  @ApiOkResponse({ type: ApiNullableRes })
   async deleteCategory(@Param('categoryId') categoryId: number) {
     await this.categoryService.deleteCategory(categoryId);
 
     return new ApiNullableRes(null, SUCCESS);
+  }
+
+  @Post('upload/image')
+  @Roles(EUserRole.ADMIN)
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({
+    schema: {
+      type: 'object',
+      properties: {
+        image: {
+          type: 'string',
+          format: 'binary',
+        },
+      },
+    },
+  })
+  @ApiOkResponse({ type: ApiRes })
+  @UseInterceptors(FileInterceptor('image'))
+  async uploadCategoryImage(@UploadedFile() image: Express.Multer.File) {
+    const uploadedImage = await this.categoryService.uploadCategoryImage(image);
+    return new ApiRes(uploadedImage, SUCCESS);
   }
 }

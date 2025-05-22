@@ -8,30 +8,34 @@ import {
   Request,
   Get,
   Query,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { ReviewService } from '../service/review.service';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/api/auth/decorators/roles.decorator';
 import { EUserRole } from 'src/enums/user.enums';
-import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
-import { GetAllReviews } from 'src/api/customer/review/dto/get-all-reviews.dto';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import {
   ApiNullableRes,
   ApiPagRes,
   ApiRes,
 } from 'src/type/custom-response.type';
 import { SUCCESS } from 'src/contants/response.constant';
+import { GetAllReviewsOfSingleProductInDto } from '../dto/get-all-reviews-of-single-product.in.dto';
+import { GetAllReviewsOfSingleProductOutRes } from '../dto/get-all-reviews-of-single-product.out.dto';
 
 @ApiTags('Admin / Review')
 @ApiBearerAuth('bearerAuth')
 @Controller('admin/review')
 export class ReviewController {
-  constructor(private readonly reviewService: ReviewService) {}
+  constructor(private readonly reviewService: ReviewService) { }
 
   @UseGuards(JwtAuthGuard, RoleGuard)
   @Roles(EUserRole.ADMIN)
-  @Delete(':reviewId/delete')
+  @Delete(':reviewId')
+  @ApiOkResponse({ type: ApiNullableRes })
   async deleteReview(
     @Param('reviewId', ParseIntPipe) reviewId: number,
     @Request() req, // inject user từ JWT
@@ -45,8 +49,10 @@ export class ReviewController {
   }
 
   @Get(':productId')
+  @Roles(EUserRole.ADMIN)
+  @ApiOkResponse({ type: GetAllReviewsOfSingleProductOutRes })
   async getAllReviewsOfSingleProduct(
-    @Query() query: GetAllReviews,
+    @Query() query: GetAllReviewsOfSingleProductInDto,
     @Param('productId') productId: number,
   ) {
     const { page, perPage } = query;

@@ -7,6 +7,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import * as bcrypt from 'bcryptjs';
 import { User } from 'src/database/entities/user/user.entity';
 import { SignupDto } from '../dto/signup.dto';
+import { LoginResponse } from 'src/type/auth.types';
 
 @Injectable()
 export class AuthService {
@@ -15,7 +16,7 @@ export class AuthService {
     private readonly userRepository: Repository<User>,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
-  ) {}
+  ) { }
 
   // Kiểm tra username + mật khẩu
   async validateUser(
@@ -34,10 +35,9 @@ export class AuthService {
   }
 
   // Đăng nhập: gọi validateUser, ném Unauthorized nếu sai
-  async login(user: Omit<User, 'password'>) {
+  async login(user: Omit<User, 'password'>): Promise<LoginResponse> {
     const payload = { sub: user.id, email: user.email, role: user.role };
     return {
-      message: 'Đăng nhập thành công!',
       user,
       accessToken: this.jwtService.sign(payload, {
         secret: this.configService.get('JWT_SECRET'),
@@ -47,7 +47,7 @@ export class AuthService {
   }
 
   // Tạo mới user (signup)
-  async signup(signupDto: SignupDto) {
+  async signup(signupDto: SignupDto): Promise<Omit<User, 'password'>> {
     const exists = await this.userRepository.findOne({
       where: { email: signupDto.username },
     });
@@ -66,9 +66,6 @@ export class AuthService {
     const saved = await this.userRepository.save(user);
 
     const { password, ...result } = saved;
-    return {
-      message: 'Đăng ký thành công!',
-      user: result,
-    };
+    return result;
   }
 }

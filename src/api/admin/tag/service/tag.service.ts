@@ -2,19 +2,20 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Tag } from 'src/database/entities/tag/tag.entity';
 import { Repository } from 'typeorm';
-import { createTagDto } from '../dto/create-tag.dto';
-import { updateTagDto } from '../dto/update-tag.dto';
-import { GetAllTags } from '../dto/get-all-tags.dto';
+import { CreateTagInDto } from '../dto/create-tag.in.dto';
+import { UpdateTagInDto } from '../dto/update-tag.in.dto';
+import { GetAllTagsInDto } from '../dto/get-all-tags.in.dto';
+import { DEFAULT_PER_PAGE } from 'src/contants/common.constant';
 
 @Injectable()
 export class TagService {
   constructor(
     @InjectRepository(Tag)
     private tagRepository: Repository<Tag>,
-  ) {}
+  ) { }
 
-  async getAllTags(query: GetAllTags): Promise<{ tags: Tag[]; total: number }> {
-    const { page = 1, perPage = 10 } = query;
+  async getAllTags(query: GetAllTagsInDto): Promise<{ tags: Tag[]; total: number }> {
+    const { page = 1, perPage = DEFAULT_PER_PAGE } = query;
     const skip = (page - 1) * perPage;
     const take = perPage;
 
@@ -23,7 +24,7 @@ export class TagService {
         'products',
         'products.manufacturer',
         'products.category',
-        'products.tags',
+        'products.brand',
         'products.images',
       ],
       skip,
@@ -48,7 +49,7 @@ export class TagService {
     return tag;
   }
 
-  async createTag(createTagDto: createTagDto): Promise<Tag> {
+  async createTag(createTagDto: CreateTagInDto): Promise<Tag> {
     const tag = this.tagRepository.create({
       ...createTagDto,
     });
@@ -58,7 +59,7 @@ export class TagService {
     return newTag;
   }
 
-  async updateTag(tagId: number, updateTagDto: updateTagDto): Promise<Tag> {
+  async updateTag(tagId: number, updateTagDto: UpdateTagInDto): Promise<Tag> {
     const tag = await this.tagRepository.findOne({
       where: { id: tagId },
     });

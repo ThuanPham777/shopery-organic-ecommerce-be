@@ -9,6 +9,7 @@ import { Tag } from 'src/database/entities/tag/tag.entity';
 import { Product } from 'src/database/entities/product/product.entity';
 import { ProductImages } from 'src/database/entities/product/product-image.entity';
 import { ProductController } from './controller/product.controller';
+import { UploadService } from 'src/common/helper/upload/upload.service';
 
 @Module({
   imports: [
@@ -22,6 +23,6 @@ import { ProductController } from './controller/product.controller';
     ]),
   ],
   controllers: [ProductController],
-  providers: [ProductService],
+  providers: [ProductService, UploadService],
 })
 export class ProductModule {}

@@ -1,35 +1,16 @@
-import {
-  Entity,
-  PrimaryGeneratedColumn,
-  Column,
-  ManyToOne,
-  JoinColumn,
-  Check,
-  DeleteDateColumn,
-} from 'typeorm';
+import { Entity, Column, ManyToOne, JoinColumn, Check } from 'typeorm';
 import { Product } from '../product/product.entity';
 import { User } from '../user/user.entity';
+import { BaseEntity } from '../base.entity';
 
 @Entity({ name: 'Review' })
 @Check(`rating >= 1 AND rating <= 5`)
-export class Review {
-  @PrimaryGeneratedColumn()
-  id: number;
-
+export class Review extends BaseEntity {
   @Column({ type: 'int' })
   rating: number;
 
   @Column({ type: 'text' })
   comment: string;
-
-  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
-  created_at: Date;
-
-  @Column({ type: 'timestamp', nullable: true })
-  modified_at: Date;
-
-  @DeleteDateColumn({ type: 'timestamp', nullable: true })
-  deleted_at: Date;
 
   @ManyToOne(() => Product, (product) => product.reviews)
   @JoinColumn({ name: 'product_id' })

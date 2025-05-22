@@ -7,16 +7,14 @@ export class BrandService {
   constructor(
     @InjectRepository(Brand)
     private brandRepository: Repository<Brand>,
-  ) {}
+  ) { }
 
-  async getAllBrands() {
+  async getAllBrands(): Promise<Brand[]> {
     const brands = await this.brandRepository.find();
 
     if (!brands) {
       throw new NotFoundException('Brand Not Found');
     }
-    return {
-      data: brands,
-    };
+    return brands;
   }
 }

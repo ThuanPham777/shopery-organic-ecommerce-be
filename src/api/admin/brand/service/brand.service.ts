@@ -2,21 +2,22 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Brand } from 'src/database/entities/brand/brand.entity';
 import { Repository } from 'typeorm';
-import { createBrandDto } from '../dto/create-brand.dto';
-import { updateBrandDto } from '../dto/update-brand.dto';
-import { GetAllBrandsDto } from '../dto/get-all-brands.dto';
+import { createBrandInDto } from '../dto/create-brand.in.dto';
+import { updateBrandDto } from '../dto/update-brand.in.dto';
+import { GetAllBrandsInDto } from '../dto/get-all-brands.in.dto';
+import { DEFAULT_PER_PAGE } from 'src/contants/common.constant';
 
 @Injectable()
 export class BrandService {
   constructor(
     @InjectRepository(Brand)
     private brandRepository: Repository<Brand>,
-  ) {}
+  ) { }
 
   async getAllBrands(
-    query: GetAllBrandsDto,
+    query: GetAllBrandsInDto,
   ): Promise<{ brands: Brand[]; total: number }> {
-    const { page = 1, perPage = 10 } = query;
+    const { page = 1, perPage = DEFAULT_PER_PAGE } = query;
     const skip = (page - 1) * perPage;
     const take = perPage;
 
@@ -46,7 +47,7 @@ export class BrandService {
     return brand;
   }
 
-  async createBrand(createBrandDto: createBrandDto): Promise<Brand> {
+  async createBrand(createBrandDto: createBrandInDto): Promise<Brand> {
     const brand = this.brandRepository.create({
       ...createBrandDto,
     });

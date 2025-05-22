@@ -8,16 +8,14 @@ export class ManufacturerService {
   constructor(
     @InjectRepository(Manufacturer)
     private manufacturerRepository: Repository<Manufacturer>,
-  ) {}
+  ) { }
 
-  async getAllManufacturers() {
+  async getAllManufacturers(): Promise<Manufacturer[]> {
     const manufacturers = await this.manufacturerRepository.find();
 
     if (!manufacturers) {
       throw new NotFoundException('Manufacturer Not Found');
     }
-    return {
-      data: manufacturers,
-    };
+    return manufacturers;
   }
 }
