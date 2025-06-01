@@ -4,8 +4,8 @@ import {
   ManyToOne,
   JoinColumn,
 } from 'typeorm';
-import { User } from '../user/user.entity';
 import { BaseEntity } from '../base.entity';
+import { OrderDetail } from '../order/order-detail.entity';
 
 export enum PaymentMethod {
   COD = 'Cash on Delivery',
@@ -27,8 +27,8 @@ export class Payment extends BaseEntity {
   @Column({ type: 'decimal', precision: 10, scale: 2, nullable: true })
   amount: number;
 
-  @Column({ type: 'int', nullable: true })
-  transaction_id: number;
+  @Column({ type: 'varchar', nullable: true })
+  transaction_id: string;
 
   @Column({ type: 'enum', enum: PaymentMethod })
   method: PaymentMethod;
@@ -36,7 +36,8 @@ export class Payment extends BaseEntity {
   @Column({ type: 'enum', enum: PaymentStatus })
   status: PaymentStatus;
 
-  @ManyToOne(() => User)
-  @JoinColumn({ name: 'user_id' })
-  user: User;
+
+  @ManyToOne(() => OrderDetail)
+  @JoinColumn({ name: 'order_id' })
+  order: OrderDetail;
 }

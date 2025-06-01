@@ -6,6 +6,7 @@ import { BrandModule } from './brand/brand.module';
 import { TagModule } from './tag/tag.module';
 import { UserModule } from './user/user.module';
 import { ReviewModule } from './review/review.module';
+import { OrderModule } from './order/order.module';
 
 @Module({
   imports: [
@@ -16,6 +17,7 @@ import { ReviewModule } from './review/review.module';
     BrandModule,
     TagModule,
     ReviewModule,
+    OrderModule,
   ],
 })
 export class AdminApiModule { }
