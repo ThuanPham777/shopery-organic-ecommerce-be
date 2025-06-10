@@ -4,7 +4,7 @@ import { BaseEntity } from '../base.entity';
 
 @Entity({ name: 'Category' })
 export class Category extends BaseEntity {
-  @Column({ length: 255 })
+  @Column({ length: 255, unique: true })
   name: string;
 
   @Column({ type: 'text', nullable: true })

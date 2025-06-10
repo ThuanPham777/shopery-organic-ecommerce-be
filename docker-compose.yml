@@ -15,7 +15,19 @@ services:
     networks:
       - PrviNetwork
 
+  cloudbeaver:
+    image: dbeaver/cloudbeaver
+    container_name: cloudbeaver
+    restart: always
+    ports:
+      - "8979:8978"
+    volumes:
+      - cloudbeaver-data:/opt/cloudbeaver/workspace
+    networks:
+      - PrviNetwork
+
 volumes:
+  cloudbeaver-data:
   mysql-data:
 
 networks:

@@ -1,13 +1,13 @@
 import { Body, Controller, Post, Req, UnauthorizedException } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 import { AuthService } from '../service/auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { SignupDto } from '../dto/signup.dto';
 import { SUCCESS } from 'src/contants/response.constant';
 import { ApiRes } from 'src/type/custom-response.type';
 import { LoginResponse } from 'src/type/auth.types';
-import { CartService } from 'src/api/customer/cart/service/cart.service';
 import { Request } from 'express';
+import { CartService } from 'src/api/cart/service/cart.service';
 
 // Define custom session type
 type SessionWithUser = {

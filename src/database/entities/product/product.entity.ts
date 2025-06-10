@@ -35,7 +35,7 @@ export class Product extends BaseEntity {
   @Column({ length: 255 })
   thumbnail: string;
 
-  @Column({ length: 255 })
+  @Column({ length: 255, unique: true })
   sku: string;
 
   @Column({ type: 'float' })

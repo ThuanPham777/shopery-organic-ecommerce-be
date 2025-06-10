@@ -35,15 +35,7 @@ async function bootstrap() {
     .setTitle('My API Shopery organic')
     .setDescription('API Shopery organic')
     .setVersion('1.0')
-    .addBearerAuth(
-      {
-        type: 'http',
-        scheme: 'bearer',
-        bearerFormat: 'JWT',
-        description: 'Nhập JWT token (chỉ token, không kèm "Bearer ")',
-      },
-      'bearerAuth', // security name, phải trùng với @ApiBearerAuth() nếu bạn dùng decorator
-    )
+    .addBearerAuth()
     .build();
 
   const document = SwaggerModule.createDocument(app, config);

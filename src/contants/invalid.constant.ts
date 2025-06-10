@@ -1,17 +1,18 @@
-export const INVALID_MIN = (n: number) => `Phải tối thiểu ${n} ký tự`;
-export const INVALID_MAX = (n: number) => `Không được vượt quá ${n} ký tự`;
-export const INVALID_LENGHT = (n: number) => `Phải chính xác ${n} ký tự`;
-export const INVALID_EMAIL = `Email không hợp lệ`;
-export const INVALID_STRING = `Phải là dạng chuỗi`;
-export const INVALID_NUMBER_STRING = `Chỉ bao gồm các chữ số`;
-export const INVALID_NUMBER = `Giá trị phải là số`;
-export const INVALID_DATE = `Ngày không hợp lệ`;
-export const INVALID_UUID = `Phải có định dạng UUID`;
-export const INVALID_ARRAY = `Giá trị phải là một mảng`;
-export const INVALID_PASSWORD = `Mật khẩu phải có độ dài ít nhất 8 kí tự; chứa ít nhất 1 chữ hoa, 1 chữ thường và 1 số`;
+export const INVALID_MIN = (n: number) => `Must be at least ${n} characters`;
+export const INVALID_MAX = (n: number) => `Must not exceed ${n} characters`;
+export const INVALID_LENGHT = (n: number) => `Must be exactly ${n} characters`;
+export const INVALID_EMAIL = `Invalid email address`;
+export const INVALID_STRING = `Must be a string`;
+export const INVALID_NUMBER_STRING = `Must contain digits only`;
+export const INVALID_NUMBER = `Value must be a number`;
+export const INVALID_DATE = `Invalid date`;
+export const INVALID_UUID = `Must be in UUID format`;
+export const INVALID_ARRAY = `Value must be an array`;
+export const INVALID_PASSWORD = `Password must be at least 8 characters long, and include at least 1 uppercase letter, 1 lowercase letter, and 1 number`;
 export const INVALID_ENUM = (values: string[]) =>
-  `Phải là một trong các lựa chọn: ${values.join(', ')}`;
-export const INVALID_REQUIRED = 'Không được để trống';
+  `Must be one of the following: ${values.join(', ')}`;
+export const INVALID_REQUIRED = 'This field is required';
 export const INVALID_MATCH = (pattern: string) =>
-  `Phải có định dạng hợp lệ: ${pattern}`;
-export const INVALID_MIN_LENGTH = (n: number) => `Phải có ít nhất ${n} ký tự`;
+  `Must match the pattern: ${pattern}`;
+export const INVALID_MIN_LENGTH = (n: number) => `Must be at least ${n} characters`;
+export const INVALID_PHONE_NUMBER = 'Phone number must be 10 digits and start with 0';
