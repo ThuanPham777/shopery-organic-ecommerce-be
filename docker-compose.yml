@@ -11,7 +11,6 @@ services:
       MYSQL_DATABASE: shoperyorganic
       MYSQL_USER: user
       MYSQL_PASSWORD: thuan@7771412
-
     networks:
       - PrviNetwork
 
@@ -26,9 +25,20 @@ services:
     networks:
       - PrviNetwork
 
+  redis:
+    image: redis:7
+    container_name: redis_shoperyorganic
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-data:/data
+    networks:
+      - PrviNetwork
+
 volumes:
   cloudbeaver-data:
   mysql-data:
+  redis-data:
 
 networks:
   PrviNetwork:

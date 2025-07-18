@@ -30,6 +30,14 @@ export class CreateProductInDto {
 
   @ApiProperty({
     example: 'Fresh organic avocados rich in healthy fats and nutrients.',
+    description: 'Short description of the product',
+  })
+  @IsNotEmpty({ message: 'short_description is required' })
+  @IsString()
+  short_description: string;
+
+  @ApiProperty({
+    example: 'Fresh organic avocados rich in healthy fats and nutrients.',
     description: 'Detailed description of the product',
   })
   @IsNotEmpty({ message: 'description is required' })

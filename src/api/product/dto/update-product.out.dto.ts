@@ -12,6 +12,9 @@ export class UpdateProductOutDto {
     @ApiProperty({ example: 'organic-avocado', description: 'Product slug' })
     slug: string;
 
+    @ApiProperty({ example: 'Fresh organic avocados...', description: 'Product short description' })
+    short_description: string;
+
     @ApiProperty({ example: 'Fresh organic avocados...', description: 'Product description' })
     description: string;
 

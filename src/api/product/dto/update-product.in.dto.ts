@@ -28,6 +28,14 @@ export class UpdateProductInDto {
   slug?: string;
 
   @ApiPropertyOptional({
+    example: 'Fresh organic apple',
+    description: 'Short description of the product (optional)',
+  })
+  @IsOptional()
+  @IsString()
+  short_description?: string;
+
+  @ApiPropertyOptional({
     example: 'A delicious and fresh organic apple from the farm.',
     description: 'Product description (optional)',
   })

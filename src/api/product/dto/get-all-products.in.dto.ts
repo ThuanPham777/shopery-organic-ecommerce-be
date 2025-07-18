@@ -5,7 +5,6 @@ import { ApiPagReq } from 'src/type/custom-response.type';
 
 export class GetAllProductsInDto extends ApiPagReq {
   @ApiPropertyOptional({
-    example: 'fruits',
     description: 'Filter products by category slug',
   })
   @IsOptional()
@@ -13,7 +12,6 @@ export class GetAllProductsInDto extends ApiPagReq {
   category?: string;
 
   @ApiPropertyOptional({
-    example: 'green-farm',
     description: 'Filter products by manufacturer name',
   })
   @IsOptional()
@@ -21,7 +19,6 @@ export class GetAllProductsInDto extends ApiPagReq {
   manufacturer?: string;
 
   @ApiPropertyOptional({
-    example: 'eco-brand',
     description: 'Filter products by brand name',
   })
   @IsOptional()
@@ -29,7 +26,6 @@ export class GetAllProductsInDto extends ApiPagReq {
   brand?: string;
 
   @ApiPropertyOptional({
-    example: 'organic',
     description: 'Filter products by tag (e.g., organic, vegan, fresh)',
   })
   @IsOptional()
@@ -37,7 +33,6 @@ export class GetAllProductsInDto extends ApiPagReq {
   tag?: string;
 
   @ApiPropertyOptional({
-    example: 10,
     description: 'Minimum price filter',
   })
   @IsOptional()
@@ -47,7 +42,6 @@ export class GetAllProductsInDto extends ApiPagReq {
   minPrice?: number;
 
   @ApiPropertyOptional({
-    example: 100,
     description: 'Maximum price filter',
   })
   @IsOptional()
@@ -57,7 +51,6 @@ export class GetAllProductsInDto extends ApiPagReq {
   maxPrice?: number;
 
   @ApiPropertyOptional({
-    example: 4,
     description: 'Minimum average rating (1 to 5)',
   })
   @IsOptional()
