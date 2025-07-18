@@ -14,6 +14,7 @@ import { Tag } from '../tag/tag.entity';
 import { ProductImages } from '../product/product-image.entity';
 import { Review } from '../review/review.entity';
 import { BaseEntity } from '../base.entity';
+import { ProductAttributeValue } from '../attribute/product-attribute-value.entity';
 
 export enum ProductStatus {
   IN_STOCK = 'In stock',
@@ -28,6 +29,9 @@ export class Product extends BaseEntity {
 
   @Column({ length: 255, unique: true })
   slug: string;
+
+  @Column({ type: 'varchar', length: 255 })
+  short_description: string;
 
   @Column({ type: 'text' })
   description: string;
@@ -92,4 +96,7 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => Review, (review) => review.product)
   reviews: Review[];
+
+  @OneToMany(() => ProductAttributeValue, (pav) => pav.product)
+  productAttributeValues: ProductAttributeValue[];
 }

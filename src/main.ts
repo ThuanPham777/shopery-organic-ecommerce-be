@@ -32,8 +32,24 @@ async function bootstrap() {
 
 
   const config = new DocumentBuilder()
-    .setTitle('My API Shopery organic')
-    .setDescription('API Shopery organic')
+    .setTitle('Shopery organic ecommerce')
+    .setDescription(
+      `This is the official API documentation for the Shopery Organic E-commerce platform.
+It provides a comprehensive set of RESTful endpoints for managing users, authentication, products, attributes, categories, orders, reviews, and more.
+
+### 🔐 Authentication
+All protected endpoints require a Bearer Token (JWT). Please log in to obtain a token and include it in the "Authorize" header to access secured resources.
+
+### 📦 Features
+- User registration, login, and profile management
+- Product creation, listing, and filtering
+- Attribute and variant management
+- Order creation and status updates
+- Review system
+- Admin and user role separation
+
+For questions or support, please contact the development team.`
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();
