@@ -12,10 +12,13 @@ import { ReviewModule } from './review/review.module';
 import { UserModule } from './user/user.module';
 import { OrderModule } from './order/order.module';
 import { PaymentModule } from './payment/payment.module';
+import { BlogCommentModule } from './blog-comment/blogComment.module';
+import { BlogTagModule } from './blog-tag/blogTag.module';
+import { BlogCategoryModule } from './blog-category/blogCategory.module';
 
 @Module({
   imports: [AuthModule, AddressModule, CouponModule, ProductModule, CategoryModule,
     ManufacturerModule, BrandModule, TagModule, CartModule, ReviewModule, UserModule,
-    OrderModule, PaymentModule],
+    OrderModule, PaymentModule, BlogCommentModule, BlogTagModule, BlogCategoryModule],
 })
 export class ApiModule { }
