@@ -15,6 +15,7 @@ import { ProductImages } from '../product/product-image.entity';
 import { Review } from '../review/review.entity';
 import { BaseEntity } from '../base.entity';
 import { ProductAttributeValue } from '../attribute/product-attribute-value.entity';
+import { Wishlist } from '../wishlist/wishlist.entity';
 
 export enum ProductStatus {
   IN_STOCK = 'In stock',
@@ -99,4 +100,7 @@ export class Product extends BaseEntity {
 
   @OneToMany(() => ProductAttributeValue, (pav) => pav.product)
   productAttributeValues: ProductAttributeValue[];
+
+  @OneToMany(() => Wishlist, (wishlist) => wishlist.product)
+  wishlist: Wishlist[];
 }

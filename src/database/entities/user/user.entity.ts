@@ -3,6 +3,7 @@ import { Cart } from '../cart/cart.entity';
 import { Review } from '../review/review.entity';
 import { EUserRole, EUserStatus } from 'src/enums/user.enums';
 import { BaseEntity } from '../base.entity';
+import { Wishlist } from '../wishlist/wishlist.entity';
 @Entity({ name: 'User' })
 export class User extends BaseEntity {
   @Column({ length: 255, unique: true })
@@ -57,4 +58,7 @@ export class User extends BaseEntity {
 
   @OneToMany(() => Review, (review) => review.user)
   reviews: Review[];
+
+  @OneToMany(() => Wishlist, (wishlist) => wishlist.user)
+  wishlist: Wishlist[];
 }
