@@ -15,10 +15,29 @@ import { PaymentModule } from './payment/payment.module';
 import { BlogCommentModule } from './blog-comment/blogComment.module';
 import { BlogTagModule } from './blog-tag/blogTag.module';
 import { BlogCategoryModule } from './blog-category/blogCategory.module';
+import { AttributeModule } from './attribute/attribute.module';
+import { AttributeValueModule } from './attribute-value/attributeValue.module';
 
 @Module({
-  imports: [AuthModule, AddressModule, CouponModule, ProductModule, CategoryModule,
-    ManufacturerModule, BrandModule, TagModule, CartModule, ReviewModule, UserModule,
-    OrderModule, PaymentModule, BlogCommentModule, BlogTagModule, BlogCategoryModule],
+  imports: [
+    AuthModule,
+    AddressModule,
+    CouponModule,
+    ProductModule,
+    CategoryModule,
+    ManufacturerModule,
+    BrandModule,
+    TagModule,
+    CartModule,
+    ReviewModule,
+    UserModule,
+    OrderModule,
+    PaymentModule,
+    BlogCommentModule,
+    BlogTagModule,
+    BlogCategoryModule,
+    AttributeModule,
+    AttributeValueModule,
+  ],
 })
-export class ApiModule { }
+export class ApiModule {}
