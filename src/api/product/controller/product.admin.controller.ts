@@ -53,17 +53,17 @@ export class ProductAdminController {
   @Roles(EUserRole.ADMIN)
   @ApiOkResponse({ type: GetAllProductsOutRes })
   @UsePipes(new ValidationPipe({ transform: true }))
-  async getAllProducts(@Query() query: GetAllProductsInDto) {
+  async findAll(@Query() query: GetAllProductsInDto) {
     const { page, perPage } = query;
-    const result = await this.productService.getAllProducts(query);
+    const result = await this.productService.findAll(query);
 
     return new ApiPagRes(result.products, result.total, page, perPage, SUCCESS);
   }
 
   @Get(':productId')
   @Roles(EUserRole.ADMIN)
-  async getProductById(@Param('productId') productId: number) {
-    const product = await this.productService.getProductById(productId);
+  async findById(@Param('productId') productId: number) {
+    const product = await this.productService.findById(productId);
 
     return new ApiRes(product, SUCCESS);
   }
@@ -71,9 +71,8 @@ export class ProductAdminController {
   @Post()
   @Roles(EUserRole.ADMIN)
   @ApiOkResponse({ type: CreateProductOutRes })
-  async createProduct(@Body() createProductDto: CreateProductInDto) {
-    const newProduct =
-      await this.productService.createProduct(createProductDto);
+  async create(@Body() createProductDto: CreateProductInDto) {
+    const newProduct = await this.productService.create(createProductDto);
 
     return new ApiRes(newProduct, SUCCESS);
   }
@@ -81,24 +80,22 @@ export class ProductAdminController {
   @Patch(':productId')
   @Roles(EUserRole.ADMIN)
   @ApiOkResponse({ type: UpdateProductOutRes })
-  async updateProduct(
+  async update(
     @Param('productId') productId: number,
     @Body() updateProductDto: UpdateProductInDto,
   ) {
-    const updatedProduct = await this.productService.updateProduct(
+    const updatedProduct = await this.productService.update(
       productId,
       updateProductDto,
     );
-
     return new ApiRes(updatedProduct, SUCCESS);
   }
 
   @Delete(':productId')
   @Roles(EUserRole.ADMIN)
   @ApiOkResponse({ type: ApiNullableRes })
-  async deleteProductById(@Param('productId') productId: number) {
-    await this.productService.deleteProductById(productId);
-
+  async delete(@Param('productId') productId: number) {
+    await this.productService.delete(productId);
     return new ApiNullableRes(null, SUCCESS);
   }
 }

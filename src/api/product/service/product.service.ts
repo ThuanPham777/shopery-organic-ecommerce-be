@@ -1,5 +1,6 @@
 // product/product.service.ts
 import {
+  BadRequestException,
   ConflictException,
   Injectable,
   NotFoundException,
@@ -11,7 +12,6 @@ import {
   LessThanOrEqual,
   MoreThanOrEqual,
   Repository,
-  SelectQueryBuilder,
 } from 'typeorm';
 import { Product } from 'src/database/entities/product/product.entity';
 import { GetAllProductsInDto } from '../dto/get-all-products.in.dto';
@@ -23,6 +23,9 @@ import { Tag } from 'src/database/entities/tag/tag.entity';
 import { CreateProductInDto } from '../dto/create-product.in.dto';
 import { UpdateProductInDto } from '../dto/update-product.in.dto';
 import { ProductImages } from 'src/database/entities/product/product-image.entity';
+import { ProductAttributeValue } from 'src/database/entities/attribute/product-attribute-value.entity';
+import { AttributeValue } from 'src/database/entities/attribute/attribute-value.entity';
+import { CreateProductOutDto } from '../dto/create-product.out.dto';
 @Injectable()
 export class ProductService {
   constructor(
@@ -39,9 +42,15 @@ export class ProductService {
 
     @InjectRepository(Tag)
     private readonly tagRepository: Repository<Tag>,
+
+    @InjectRepository(ProductAttributeValue)
+    private readonly productAttributeValueRepository: Repository<ProductAttributeValue>,
+
+    @InjectRepository(AttributeValue)
+    private readonly attributeValueRepository: Repository<AttributeValue>,
   ) {}
   // Method to fetch all products
-  async getAllProducts(
+  async findAll(
     query: GetAllProductsInDto,
   ): Promise<{ products: Product[]; total: number }> {
     const {
@@ -87,7 +96,7 @@ export class ProductService {
   }
 
   // Method fetch product by id
-  async getProductById(productId: number): Promise<Product> {
+  async findById(productId: number): Promise<Product> {
     // Fetch the product along with its nested relations.
     const product = await this.productRepository.findOne({
       where: { id: productId },
@@ -110,10 +119,10 @@ export class ProductService {
   }
 
   // Method to create a new product
-  async createProduct(createProductDto: CreateProductInDto): Promise<Product> {
+  async create(dto: CreateProductInDto): Promise<Product> {
     // Kiểm tra slug trùng lặp
     const existingSlug = await this.productRepository.findOne({
-      where: { slug: createProductDto.slug },
+      where: { slug: dto.slug },
     });
     if (existingSlug) {
       throw new ConflictException('Slug already exists');
@@ -121,21 +130,21 @@ export class ProductService {
 
     // Validate relations
     const category = await this.categoryRepository.findOne({
-      where: { id: createProductDto.categoryId },
+      where: { id: dto.categoryId },
     });
     if (!category) {
       throw new NotFoundException('Category not found');
     }
 
     const brand = await this.brandRepository.findOne({
-      where: { id: createProductDto.brandId },
+      where: { id: dto.brandId },
     });
     if (!brand) {
       throw new NotFoundException('Brand not found');
     }
 
     const manufacturer = await this.manufacturerRepository.findOne({
-      where: { id: createProductDto.manufacturerId },
+      where: { id: dto.manufacturerId },
     });
     if (!manufacturer) {
       throw new NotFoundException('Manufacturer not found');
@@ -143,35 +152,50 @@ export class ProductService {
 
     // Lấy danh sách tags
     const tags = await this.tagRepository.find({
-      where: { id: In(createProductDto.tagIds || []) },
+      where: { id: In(dto.tagIds || []) },
     });
-    if (tags.length !== (createProductDto.tagIds?.length || 0)) {
+    if (tags.length !== (dto.tagIds?.length || 0)) {
       throw new NotFoundException('One or more tags not found');
     }
 
     // Tạo product entity
     const product = this.productRepository.create({
-      ...createProductDto,
+      ...dto,
       category,
       brand,
       manufacturer,
       tags,
-      images: createProductDto.images?.map((url) => {
+      images: dto.images?.map((url) => {
         const image = new ProductImages();
         image.image_url = url;
         return image;
       }),
-      sold: createProductDto.sold || 0, // Giá trị mặc định
     });
 
-    return this.productRepository.save(product);
+    await this.productRepository.save(product);
+
+    const values = await this.attributeValueRepository.find();
+
+    if (values.length !== dto.attributeValueIds?.length) {
+      throw new BadRequestException(
+        'One or more attribute values are invalid for this category',
+      );
+    }
+
+    // 4. Gán ProductAttributeValue
+    const pavs = values.map((value) =>
+      this.productAttributeValueRepository.create({
+        product,
+        attributeValue: value,
+      }),
+    );
+    await this.productAttributeValueRepository.save(pavs);
+
+    return product;
   }
 
   // Method to update a product
-  async updateProduct(
-    productId: number,
-    updateProductDto: UpdateProductInDto,
-  ): Promise<Product> {
+  async update(productId: number, dto: UpdateProductInDto): Promise<Product> {
     // find product need to update
     const product = await this.productRepository.findOne({
       where: { id: Number(productId) },
@@ -183,47 +207,47 @@ export class ProductService {
     }
 
     // Kiểm tra slug mới (nếu có)
-    if (updateProductDto.slug && updateProductDto.slug !== product.slug) {
+    if (dto.slug && dto.slug !== product.slug) {
       const existingSlug = await this.productRepository.findOne({
-        where: { slug: updateProductDto.slug },
+        where: { slug: dto.slug },
       });
       if (existingSlug) {
         throw new ConflictException('Slug already exists');
       }
-      product.slug = updateProductDto.slug;
+      product.slug = dto.slug;
     }
 
     // Cập nhật các quan hệ
-    if (updateProductDto.categoryId) {
+    if (dto.categoryId) {
       const category = await this.categoryRepository.findOne({
-        where: { id: updateProductDto.categoryId },
+        where: { id: dto.categoryId },
       });
       if (!category) throw new NotFoundException('Category not found');
       product.category = category;
     }
 
-    if (updateProductDto.brandId) {
+    if (dto.brandId) {
       const brand = await this.brandRepository.findOne({
-        where: { id: updateProductDto.brandId },
+        where: { id: dto.brandId },
       });
       if (!brand) throw new NotFoundException('Brand not found');
       product.brand = brand;
     }
 
-    if (updateProductDto.manufacturerId) {
+    if (dto.manufacturerId) {
       const manufacturer = await this.manufacturerRepository.findOne({
-        where: { id: updateProductDto.manufacturerId },
+        where: { id: dto.manufacturerId },
       });
       if (!manufacturer) throw new NotFoundException('Manufacturer not found');
       product.manufacturer = manufacturer;
     }
 
     // Xử lý tags
-    if (updateProductDto.tagIds !== undefined) {
+    if (dto.tagIds !== undefined) {
       const tags = await this.tagRepository.find({
-        where: { id: In(updateProductDto.tagIds) },
+        where: { id: In(dto.tagIds) },
       });
-      if (tags.length !== updateProductDto.tagIds.length) {
+      if (tags.length !== dto.tagIds.length) {
         throw new NotFoundException('One or more tags not found');
       }
       product.tags = tags;
@@ -237,14 +261,38 @@ export class ProductService {
       tagIds,
       images,
       ...updateData
-    } = updateProductDto;
+    } = dto;
     this.productRepository.merge(product, updateData);
 
-    return this.productRepository.save(product);
+    await this.productRepository.save(product);
+
+    // Nếu có cập nhật attribute values
+    if (dto.attributeValueIds?.length) {
+      // Tìm attributeValues được update
+      const attributeValues = await this.attributeValueRepository.findBy({
+        id: In(dto.attributeValueIds),
+      });
+
+      // Xóa attribute cũ
+      await this.productAttributeValueRepository.delete({
+        product: { id: productId },
+      });
+
+      // Gán attribute mới
+      const newLinks = attributeValues.map((value) =>
+        this.productAttributeValueRepository.create({
+          product,
+          attributeValue: value,
+        }),
+      );
+      await this.productAttributeValueRepository.save(newLinks);
+    }
+
+    return product;
   }
 
   // Method to delete a product
-  async deleteProductById(productId: number) {
+  async delete(productId: number) {
     const product = await this.productRepository.findOne({
       where: { id: productId },
     });
@@ -253,6 +301,6 @@ export class ProductService {
       throw new NotFoundException('Product not found');
     }
 
-    await this.productRepository.delete({ id: productId });
+    await this.productRepository.softDelete({ id: productId });
   }
 }

@@ -10,6 +10,8 @@ import { Product } from 'src/database/entities/product/product.entity';
 import { ProductImages } from 'src/database/entities/product/product-image.entity';
 import { ProductController } from './controller/product.controller';
 import { ProductAdminController } from './controller/product.admin.controller';
+import { AttributeValue } from 'src/database/entities/attribute/attribute-value.entity';
+import { ProductAttributeValue } from 'src/database/entities/attribute/product-attribute-value.entity';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -19,6 +21,8 @@ import { ProductAdminController } from './controller/product.admin.controller';
       Manufacturer,
       Tag,
       ProductImages,
+      AttributeValue,
+      ProductAttributeValue,
     ]),
   ],
   controllers: [ProductController, ProductAdminController],

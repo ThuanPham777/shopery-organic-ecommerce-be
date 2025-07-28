@@ -1,6 +1,7 @@
 import { Entity, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Product } from '../product/product.entity';
 import { BaseEntity } from '../base.entity';
+import { CategoryAttribute } from './category-attribute.entity';
 
 @Entity({ name: 'Category' })
 export class Category extends BaseEntity {
@@ -22,12 +23,17 @@ export class Category extends BaseEntity {
   // Quan hệ đệ quy: Nhiều danh mục con thuộc về một danh mục cha
   @ManyToOne(() => Category, (category) => category.children, {
     nullable: true,
-    onDelete: 'SET NULL',
+    onDelete: 'CASCADE',
   })
   @JoinColumn({ name: 'parent_id' })
-  parent: Category;
+  parent: Category | null;
 
   // Quan hệ đệ quy: Một danh mục cha có nhiều danh mục con
-  @OneToMany(() => Category, (category) => category.parent)
+  @OneToMany(() => Category, (category) => category.parent, {
+    cascade: true,
+  })
   children: Category[];
+
+  @OneToMany(() => CategoryAttribute, (ca) => ca.category)
+  categoryAttributes: CategoryAttribute[];
 }

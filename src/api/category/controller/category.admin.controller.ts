@@ -7,23 +7,14 @@ import {
   Patch,
   Post,
   Query,
-  UploadedFile,
   UseGuards,
-  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { CategoryService } from '../service/category.service';
 import { CreateCategoryInDto } from '../dto/create-category.in.dto';
 import { UpdateCategoryInDto } from '../dto/update-category.in.dto';
-import { FileInterceptor } from '@nestjs/platform-express';
-import {
-  ApiBearerAuth,
-  ApiBody,
-  ApiConsumes,
-  ApiOkResponse,
-  ApiTags,
-} from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOkResponse, ApiTags } from '@nestjs/swagger';
 import { JwtAuthGuard } from 'src/guards/jwt-auth.guard';
 import { RoleGuard } from 'src/guards/role.guard';
 import { Roles } from 'src/api/auth/decorators/roles.decorator';
@@ -48,9 +39,9 @@ export class CategoryAdminController {
   @Get()
   @Roles(EUserRole.ADMIN)
   @ApiOkResponse({ type: GetAllCategoriesOutRes })
-  async getAllCategories(@Query() query: GetAllCategoriesInDto) {
+  async findAll(@Query() query: GetAllCategoriesInDto) {
     const { page, perPage } = query;
-    const result = await this.categoryService.getAllCategories(query);
+    const result = await this.categoryService.findAll(query);
 
     return new ApiPagRes(
       result.categories,
@@ -65,9 +56,8 @@ export class CategoryAdminController {
   @UsePipes(new ValidationPipe())
   @Roles(EUserRole.ADMIN)
   @ApiOkResponse({ type: CreateCategoryOutRes })
-  async createCategory(@Body() createCategoryDto: CreateCategoryInDto) {
-    const newCategory =
-      await this.categoryService.createCategory(createCategoryDto);
+  async create(@Body() createCategoryDto: CreateCategoryInDto) {
+    const newCategory = await this.categoryService.create(createCategoryDto);
 
     return new ApiRes(newCategory, SUCCESS);
   }
@@ -75,11 +65,11 @@ export class CategoryAdminController {
   @Patch(':categoryId')
   @UsePipes(new ValidationPipe())
   @Roles(EUserRole.ADMIN)
-  async updateCategory(
+  async update(
     @Param('categoryId') categoryId: number,
     @Body() updateCategoryDto: UpdateCategoryInDto,
   ) {
-    const updatedCategory = await this.categoryService.updateCategory(
+    const updatedCategory = await this.categoryService.update(
       categoryId,
       updateCategoryDto,
     );
@@ -90,8 +80,8 @@ export class CategoryAdminController {
   @Delete(':categoryId')
   @Roles(EUserRole.ADMIN)
   @ApiOkResponse({ type: ApiNullableRes })
-  async deleteCategory(@Param('categoryId') categoryId: number) {
-    await this.categoryService.deleteCategory(categoryId);
+  async delete(@Param('categoryId') categoryId: number) {
+    await this.categoryService.delete(categoryId);
 
     return new ApiNullableRes(null, SUCCESS);
   }

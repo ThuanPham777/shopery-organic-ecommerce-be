@@ -52,7 +52,10 @@ export class UpdateProductInDto {
   thumbnail?: string;
 
   @ApiPropertyOptional({
-    example: ['https://shopery-organic.com/images/products/organic-avocado.jpg', 'https://shopery-organic.com/images/products/organic-avocado.jpg'],
+    example: [
+      'https://shopery-organic.com/images/products/organic-avocado.jpg',
+      'https://shopery-organic.com/images/products/organic-avocado.jpg',
+    ],
     description: 'List of image URLs for the product',
   })
   @IsOptional()
@@ -94,15 +97,6 @@ export class UpdateProductInDto {
   @IsNumber()
   @Type(() => Number)
   quantity?: number;
-
-  @ApiPropertyOptional({
-    example: 50,
-    description: 'Number of products sold (optional)',
-  })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  sold?: number;
 
   @ApiPropertyOptional({
     example: true,
@@ -158,4 +152,13 @@ export class UpdateProductInDto {
   @IsNumber({}, { each: true })
   @IsOptional()
   tagIds?: number[];
+
+  @ApiPropertyOptional({
+    example: [1, 2, 3],
+    description: 'Array of attributes IDs associated with the product',
+  })
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  attributeValueIds?: number[];
 }

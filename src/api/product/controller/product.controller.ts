@@ -15,23 +15,23 @@ import { ProductService } from '../service/product.service';
 import { GetAllProductsInDto } from '../dto/get-all-products.in.dto';
 import { GetAllProductsOutRes } from '../dto/get-all-products.out.dto';
 
-@ApiTags('products')
-@Controller('products')
+@ApiTags('Product')
+@Controller('product')
 export class ProductController {
-  constructor(private readonly productService: ProductService) { }
+  constructor(private readonly productService: ProductService) {}
 
   @Get()
   @UsePipes(new ValidationPipe({ transform: true }))
   @ApiOkResponse({ type: GetAllProductsOutRes })
   async getAllProducts(@Query() query: GetAllProductsInDto) {
     const { page, perPage } = query;
-    const result = await this.productService.getAllProducts(query);
+    const result = await this.productService.findAll(query);
 
     return new ApiPagRes(result.products, result.total, page, perPage, SUCCESS);
   }
 
   @Get(':productId')
-  async getProductById(@Param('productId') productId: number) {
-    return this.productService.getProductById(productId);
+  async findById(@Param('productId') productId: number) {
+    return this.productService.findById(productId);
   }
 }

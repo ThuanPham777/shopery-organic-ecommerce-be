@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from 'class-validator';
+import { IsArray, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   INVALID_REQUIRED,
@@ -35,9 +35,20 @@ export class UpdateCategoryInDto {
   image?: string;
 
   @ApiPropertyOptional({
-    example: 1,
-    description: 'Optional parent of category',
+    example: [2, 3],
+    description: 'IDs of existing categories to set as subcategories',
   })
-  @IsNumber()
-  parentId?: number;
+  @IsOptional()
+  @IsArray()
+  @IsNumber({}, { each: true })
+  subCategoryIds?: number[];
+
+  @ApiPropertyOptional({
+    example: [1, 2, 3],
+    description: 'Array of attributes IDs associated with the product',
+  })
+  @IsArray()
+  @IsNumber({}, { each: true })
+  @IsOptional()
+  attributeIds?: number[];
 }

@@ -3,10 +3,10 @@ import { CategoryService } from '../service/category.service';
 import { ApiTags } from '@nestjs/swagger';
 import { ApiRes } from 'src/type/custom-response.type';
 import { SUCCESS } from 'src/contants/response.constant';
-@ApiTags('category')
+@ApiTags('Category')
 @Controller('category')
 export class CategoryController {
-  constructor(private readonly categoryService: CategoryService) { }
+  constructor(private readonly categoryService: CategoryService) {}
 
   @Get()
   async getNameOfAllCategories() {

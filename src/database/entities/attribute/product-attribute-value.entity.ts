@@ -1,6 +1,5 @@
 import { Entity, Column, ManyToOne, JoinColumn } from 'typeorm';
 import { BaseEntity } from '../base.entity';
-import { Attribute } from './attribute.entity';
 import { Product } from '../product/product.entity';
 import { AttributeValue } from './attribute-value.entity';
 
