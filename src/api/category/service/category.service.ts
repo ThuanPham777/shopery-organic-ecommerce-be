@@ -8,8 +8,6 @@ import { GetAllCategoriesInDto } from '../dto/get-all-categories.in.dto';
 import { CreateCategoryInDto } from '../dto/create-category.in.dto';
 import { UpdateCategoryInDto } from '../dto/update-category.in.dto';
 import { GetAllCategoriesOutDto } from '../dto/get-all-categories.out.dto';
-import { CreateCategoryOutDto } from '../dto/create-category.out.dto';
-import { UpdateCategoryOutDto } from '../dto/update-category.out.dto';
 
 @Injectable()
 export class CategoryService {
@@ -17,7 +15,7 @@ export class CategoryService {
     @InjectRepository(Category)
     private categoryRepository: Repository<Category>,
     private readonly uploadService: UploadService,
-  ) { }
+  ) {}
 
   static folder = 'shopery-organic/category';
 
@@ -39,7 +37,8 @@ export class CategoryService {
     const skip = (page - 1) * perPage;
     const take = perPage;
 
-    const qb = this.categoryRepository.createQueryBuilder('category')
+    const qb = this.categoryRepository
+      .createQueryBuilder('category')
       .leftJoin('category.products', 'product')
       .select([
         'category.id',
@@ -64,12 +63,16 @@ export class CategoryService {
       qb.getRawMany(),
 
       // Count filtered categorys
-      this.categoryRepository.createQueryBuilder('category')
-        .where(search ? 'category.name LIKE :search' : 'TRUE', search ? { search: `%${search}%` } : {})
+      this.categoryRepository
+        .createQueryBuilder('category')
+        .where(
+          search ? 'category.name LIKE :search' : 'TRUE',
+          search ? { search: `%${search}%` } : {},
+        )
         .getCount(),
     ]);
 
-    const categories: GetAllCategoriesOutDto[] = rawCategories.map(raw => ({
+    const categories: GetAllCategoriesOutDto[] = rawCategories.map((raw) => ({
       id: raw.category_id,
       name: raw.category_name,
       description: raw.category_description,
@@ -80,21 +83,32 @@ export class CategoryService {
     }));
 
     return { categories, total };
-
   }
 
   async createCategory(
     createCategoryDto: CreateCategoryInDto,
-  ): Promise<CreateCategoryOutDto> {
-    const newCategory = this.categoryRepository.create(createCategoryDto);
-    return this.categoryRepository.save(newCategory);
+  ): Promise<Category> {
+    const category = this.categoryRepository.create(createCategoryDto);
+
+    if (createCategoryDto.parentId) {
+      const parent = await this.categoryRepository.findOne({
+        where: { id: createCategoryDto.parentId },
+      });
+      if (!parent) throw new NotFoundException('Parent category not found');
+      category.parent = parent;
+    }
+
+    return this.categoryRepository.save(category);
   }
 
   async updateCategory(
     categoryId: number,
     updateCategoryDto: UpdateCategoryInDto,
-  ): Promise<UpdateCategoryOutDto> {
-    const updatedCategory = await this.categoryRepository.update(categoryId, updateCategoryDto);
+  ): Promise<Category> {
+    const updatedCategory = await this.categoryRepository.update(
+      categoryId,
+      updateCategoryDto,
+    );
     return updatedCategory.raw;
   }
 

@@ -1,6 +1,9 @@
-import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsNotEmpty, IsNumber, IsOptional, IsString } from 'class-validator';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { INVALID_REQUIRED, INVALID_STRING } from 'src/contants/invalid.constant';
+import {
+  INVALID_REQUIRED,
+  INVALID_STRING,
+} from 'src/contants/invalid.constant';
 
 export class CreateCategoryInDto {
   @ApiProperty({
@@ -24,9 +27,9 @@ export class CreateCategoryInDto {
       'Fresh organic vegetables grown without chemical fertilizers or pesticides.',
     description: 'Detailed description of the category',
   })
-  @IsNotEmpty({ message: INVALID_REQUIRED })
+  @IsOptional({ message: INVALID_REQUIRED })
   @IsString({ message: INVALID_STRING })
-  description: string;
+  description?: string;
 
   @ApiPropertyOptional({
     example:
@@ -36,4 +39,11 @@ export class CreateCategoryInDto {
   @IsOptional({ message: INVALID_REQUIRED })
   @IsString({ message: INVALID_STRING })
   image?: string;
+
+  @ApiPropertyOptional({
+    example: 1,
+    description: 'Optional parent of category',
+  })
+  @IsNumber()
+  parentId?: number;
 }

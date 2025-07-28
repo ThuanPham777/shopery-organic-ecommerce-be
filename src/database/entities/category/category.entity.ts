@@ -1,4 +1,4 @@
-import { Entity, Column, OneToMany } from 'typeorm';
+import { Entity, Column, OneToMany, ManyToOne, JoinColumn } from 'typeorm';
 import { Product } from '../product/product.entity';
 import { BaseEntity } from '../base.entity';
 
@@ -18,4 +18,16 @@ export class Category extends BaseEntity {
 
   @OneToMany(() => Product, (product) => product.category)
   products: Product[];
+
+  // Quan hệ đệ quy: Nhiều danh mục con thuộc về một danh mục cha
+  @ManyToOne(() => Category, (category) => category.children, {
+    nullable: true,
+    onDelete: 'SET NULL',
+  })
+  @JoinColumn({ name: 'parent_id' })
+  parent: Category;
+
+  // Quan hệ đệ quy: Một danh mục cha có nhiều danh mục con
+  @OneToMany(() => Category, (category) => category.parent)
+  children: Category[];
 }
