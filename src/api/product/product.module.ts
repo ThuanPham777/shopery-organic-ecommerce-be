@@ -10,7 +10,6 @@ import { Product } from 'src/database/entities/product/product.entity';
 import { ProductImages } from 'src/database/entities/product/product-image.entity';
 import { ProductController } from './controller/product.controller';
 import { ProductAdminController } from './controller/product.admin.controller';
-import { UploadService } from 'src/common/helper/upload/upload.service';
 @Module({
   imports: [
     TypeOrmModule.forFeature([
@@ -23,6 +22,6 @@ import { UploadService } from 'src/common/helper/upload/upload.service';
     ]),
   ],
   controllers: [ProductController, ProductAdminController],
-  providers: [ProductService, UploadService],
+  providers: [ProductService],
 })
-export class ProductModule { }
+export class ProductModule {}

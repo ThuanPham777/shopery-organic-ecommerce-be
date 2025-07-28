@@ -18,6 +18,7 @@ import { BlogCategoryModule } from './blog-category/blogCategory.module';
 import { AttributeModule } from './attribute/attribute.module';
 import { AttributeValueModule } from './attribute-value/attributeValue.module';
 import { WishlistModule } from './wishlist/wishlist.module';
+import { UploadModule } from './upload/upload.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { WishlistModule } from './wishlist/wishlist.module';
     AttributeModule,
     AttributeValueModule,
     WishlistModule,
+    UploadModule,
   ],
 })
 export class ApiModule {}

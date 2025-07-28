@@ -1,12 +1,22 @@
 // product/product.service.ts
-import { BadRequestException, ConflictException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, IsNull, LessThanOrEqual, MoreThanOrEqual, Repository, SelectQueryBuilder } from 'typeorm';
+import {
+  In,
+  IsNull,
+  LessThanOrEqual,
+  MoreThanOrEqual,
+  Repository,
+  SelectQueryBuilder,
+} from 'typeorm';
 import { Product } from 'src/database/entities/product/product.entity';
 import { GetAllProductsInDto } from '../dto/get-all-products.in.dto';
 import { DEFAULT_PER_PAGE } from 'src/contants/common.constant';
 import { Category } from 'src/database/entities/category/category.entity';
-import { UploadService } from 'src/common/helper/upload/upload.service';
 import { Brand } from 'src/database/entities/brand/brand.entity';
 import { Manufacturer } from 'src/database/entities/manufacturer/manufacturer.entity';
 import { Tag } from 'src/database/entities/tag/tag.entity';
@@ -16,10 +26,8 @@ import { ProductImages } from 'src/database/entities/product/product-image.entit
 @Injectable()
 export class ProductService {
   constructor(
-    private readonly uploadService: UploadService,
-
     @InjectRepository(Product)
-    private productRepository: Repository<Product>,
+    private readonly productRepository: Repository<Product>,
     @InjectRepository(Category)
     private readonly categoryRepository: Repository<Category>,
 
@@ -31,10 +39,7 @@ export class ProductService {
 
     @InjectRepository(Tag)
     private readonly tagRepository: Repository<Tag>,
-  ) { }
-
-  static folder = 'shopery-organic/products';
-
+  ) {}
   // Method to fetch all products
   async getAllProducts(
     query: GetAllProductsInDto,
@@ -58,23 +63,28 @@ export class ProductService {
         ...(minPrice && { price: MoreThanOrEqual(minPrice) }),
         ...(maxPrice && { price: LessThanOrEqual(maxPrice) }),
         ...(category && { category: { slug: category, deleted_at: IsNull() } }),
-        ...(manufacturer && { manufacturer: { name: manufacturer, deleted_at: IsNull() } }),
+        ...(manufacturer && {
+          manufacturer: { name: manufacturer, deleted_at: IsNull() },
+        }),
         ...(brand && { brand: { name: brand, deleted_at: IsNull() } }),
         ...(tag && { tags: { name: tag, deleted_at: IsNull() } }),
       },
       relations: ['category', 'manufacturer', 'brand', 'tags', 'images'],
-      order: sorts.length ? Object.fromEntries(sorts.map(s => s.split('|'))) : { created_at: 'DESC' },
+      order: sorts.length
+        ? Object.fromEntries(sorts.map((s) => s.split('|')))
+        : { created_at: 'DESC' },
       skip: (page - 1) * perPage,
       take: perPage,
     });
 
     if (search) {
-      products = products.filter(product => product.name.toLowerCase().includes(search.toLowerCase()));
+      products = products.filter((product) =>
+        product.name.toLowerCase().includes(search.toLowerCase()),
+      );
     }
 
     return { products, total };
   }
-
 
   // Method fetch product by id
   async getProductById(productId: number): Promise<Product> {
@@ -175,7 +185,7 @@ export class ProductService {
     // Kiểm tra slug mới (nếu có)
     if (updateProductDto.slug && updateProductDto.slug !== product.slug) {
       const existingSlug = await this.productRepository.findOne({
-        where: { slug: updateProductDto.slug }
+        where: { slug: updateProductDto.slug },
       });
       if (existingSlug) {
         throw new ConflictException('Slug already exists');
@@ -211,7 +221,7 @@ export class ProductService {
     // Xử lý tags
     if (updateProductDto.tagIds !== undefined) {
       const tags = await this.tagRepository.find({
-        where: { id: In(updateProductDto.tagIds) }
+        where: { id: In(updateProductDto.tagIds) },
       });
       if (tags.length !== updateProductDto.tagIds.length) {
         throw new NotFoundException('One or more tags not found');
@@ -220,7 +230,14 @@ export class ProductService {
     }
 
     // Merge các thay đổi
-    const { categoryId, brandId, manufacturerId, tagIds, images, ...updateData } = updateProductDto;
+    const {
+      categoryId,
+      brandId,
+      manufacturerId,
+      tagIds,
+      images,
+      ...updateData
+    } = updateProductDto;
     this.productRepository.merge(product, updateData);
 
     return this.productRepository.save(product);
@@ -237,27 +254,5 @@ export class ProductService {
     }
 
     await this.productRepository.delete({ id: productId });
-
-  }
-
-  // Upload single image
-  async uploadProductImage(file: Express.Multer.File): Promise<string> {
-    if (!file) {
-      throw new BadRequestException('Image is required');
-    }
-    const uploadResult = await this.uploadService.uploadToCloudinary(
-      file,
-      ProductService.folder,
-    );
-    return uploadResult.secure_url;
-  }
-
-  // Upload multiple images
-  async uploadProductImages(files: Express.Multer.File[]): Promise<string[]> {
-    if (!files || files.length === 0) {
-      throw new BadRequestException('Images are required');
-    }
-    const uploadPromises = files.map(file => this.uploadProductImage(file));
-    return Promise.all(uploadPromises);
   }
 }

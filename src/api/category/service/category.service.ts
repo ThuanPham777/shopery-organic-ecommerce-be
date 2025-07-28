@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { UploadService } from 'src/common/helper/upload/upload.service';
 import { DEFAULT_PER_PAGE } from 'src/contants/common.constant';
 import { Category } from 'src/database/entities/category/category.entity';
 import { Repository } from 'typeorm';
@@ -13,11 +12,8 @@ import { GetAllCategoriesOutDto } from '../dto/get-all-categories.out.dto';
 export class CategoryService {
   constructor(
     @InjectRepository(Category)
-    private categoryRepository: Repository<Category>,
-    private readonly uploadService: UploadService,
+    private readonly categoryRepository: Repository<Category>,
   ) {}
-
-  static folder = 'shopery-organic/category';
 
   // customer
   async getNameOfAllCategories(): Promise<string[]> {
@@ -114,13 +110,5 @@ export class CategoryService {
 
   async deleteCategory(categoryId: number): Promise<void> {
     await this.categoryRepository.delete(categoryId);
-  }
-
-  async uploadCategoryImage(image: Express.Multer.File): Promise<string> {
-    const uploadResult = await this.uploadService.uploadToCloudinary(
-      image,
-      CategoryService.folder,
-    );
-    return uploadResult.secure_url;
   }
 }

@@ -45,7 +45,7 @@ export class UploadService {
    * @param publicId - Public ID của ảnh cần xóa
    * @returns Kết quả xóa ảnh
    */
-  async deleteFromCloudinary(publicId: string): Promise<any> {
+  async deleteFromCloudinary(publicId: string): Promise<void> {
     return new Promise((resolve, reject) => {
       cloudinary.uploader.destroy(publicId, (error, result) => {
         if (error) return reject(error);
