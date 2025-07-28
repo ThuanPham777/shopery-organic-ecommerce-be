@@ -17,6 +17,7 @@ import { BlogTagModule } from './blog-tag/blogTag.module';
 import { BlogCategoryModule } from './blog-category/blogCategory.module';
 import { AttributeModule } from './attribute/attribute.module';
 import { AttributeValueModule } from './attribute-value/attributeValue.module';
+import { WishlistModule } from './wishlist/wishlist.module';
 
 @Module({
   imports: [
@@ -38,6 +39,7 @@ import { AttributeValueModule } from './attribute-value/attributeValue.module';
     BlogCategoryModule,
     AttributeModule,
     AttributeValueModule,
+    WishlistModule,
   ],
 })
 export class ApiModule {}
